@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import { urlJoin } from 'url-join-ts';
-import { EndpointDef, ReqOptions, StandardEndpointDef } from '@src/endpoint';
+import { AbstractEndpointDef, StandardEndpointDef } from '@src/endpoint';
 import { Route } from '@src/route';
 
 /**
@@ -24,37 +24,55 @@ export const replaceUrlParams = (path: string, params: Record<string, unknown>):
   return path;
 };
 
-export type RouteRequestType = EndpointDef<ReqOptions, any, any>;
+type RouteRequestCallable<T extends AbstractEndpointDef> = (options: T['requestOptions']) => Promise<T['responseBody']>;
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-const createRouteRequest = <T extends RouteRequestType>(route: Route, baseUrl: string) => {
+type RouteRequest<T extends AbstractEndpointDef> = (baseUrl: string) => RouteRequestCallable<T>;
+
+export const createRouteRequest = <T extends AbstractEndpointDef>(route: Route): RouteRequest<T> => {
   const { method } = route;
 
-  return async (options: T['requestOptions']): Promise<T['responseBody']> => {
-    const { params, query, body, headers } = options;
+  return (baseUrl: string): RouteRequestCallable<T> => {
+    return async (options: T['requestOptions']): Promise<T['responseBody']> => {
+      const { params, query, body, headers } = options;
 
-    // Build the url
-    const routePath = replaceUrlParams(route.path, params);
-    const url = urlJoin(baseUrl, routePath);
+      // Build the url
+      const routePath = replaceUrlParams(route.path, params);
+      const url = urlJoin(baseUrl, routePath);
 
-    // Make the request
-    const config: AxiosRequestConfig = {
-      method,
-      url,
-      params: query,
-      data: body,
-      headers,
-      validateStatus: (status) => status >= 200 && status < 300,
+      // Make the request
+      const config: AxiosRequestConfig = {
+        method,
+        url,
+        params: query,
+        data: body,
+        headers,
+        validateStatus: (status) => status >= 200 && status < 300,
+      };
+      const response = await axios.request<T['responseBody']>(config);
+      return response.data;
     };
-    const response = await axios.request<T['responseBody']>(config);
-    return response.data;
   };
 };
 
-export const routeRequestCreator = (baseUrl: string) => {
-  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  return <T extends RouteRequestType>(route: Route) => createRouteRequest<T>(route, baseUrl);
+export type ApiClientDef = Record<string, RouteRequest<AbstractEndpointDef>>;
+
+export type ApiClient<T extends ApiClientDef> = Record<keyof T, RouteRequestCallable<AbstractEndpointDef>>;
+
+export type ApiClientBuilder<T extends ApiClientDef> = (baseUrl: string) => ApiClient<T>;
+
+export const apiClientBuilder = <T extends ApiClientDef>(apiDef: T): ApiClientBuilder<T> => {
+  return (baseUrl: string): ApiClient<T> => {
+    const apiClient: Partial<ApiClient<T>> = {};
+    for (const [key, routeRequest] of Object.entries(apiDef)) {
+      apiClient[key as keyof T] = routeRequest(baseUrl);
+    }
+    return apiClient as ApiClient<T>;
+  };
 };
+
+/*
+ * Error handling
+ */
 
 type ErrorStatuses<T extends StandardEndpointDef> = T['errorType']['status'];
 

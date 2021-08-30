@@ -1,4 +1,3 @@
-import { routeRequestCreator } from '../src';
 import {
   CreateDogEndpointDef,
   GetDogEndpointDef,
@@ -7,13 +6,12 @@ import {
   getDogsRoute,
   postDogRoute,
 } from './example-routes';
+import { ApiClientDef, apiClientBuilder, createRouteRequest } from '../src';
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const createApiClient = (baseUrl: string) => {
-  const createRequest = routeRequestCreator(baseUrl);
-  return {
-    createDog: createRequest<CreateDogEndpointDef>(postDogRoute),
-    getDog: createRequest<GetDogEndpointDef>(getDogRoute),
-    getDogs: createRequest<GetDogsEndpointDef>(getDogsRoute),
-  };
+const clientDef: ApiClientDef = {
+  createDog: createRouteRequest<CreateDogEndpointDef>(postDogRoute),
+  getDog: createRouteRequest<GetDogEndpointDef>(getDogRoute),
+  getDogs: createRouteRequest<GetDogsEndpointDef>(getDogsRoute),
 };
+
+export const apiClient = apiClientBuilder(clientDef);

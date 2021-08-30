@@ -1,6 +1,6 @@
 import { clearDogDB, scoobyDoo } from './dog';
 import { startApp } from './example-express';
-import { createApiClient } from './example-api-client';
+import { apiClient } from './example-api-client';
 import { GetDogEndpointDef, GetDogErrorType } from './example-routes';
 import { AxiosError } from 'axios';
 import { ErrorHandlers, handleError } from '../src';
@@ -27,10 +27,10 @@ afterAll(async () => {
 });
 
 it('Test API', async () => {
-  const apiClient = createApiClient(baseUrl);
+  const client = apiClient(baseUrl);
 
   // Create a dog
-  const createResp = await apiClient.createDog({
+  const createResp = await client.createDog({
     body: scoobyDoo,
   });
   const { _id } = createResp;
@@ -42,7 +42,7 @@ it('Test API', async () => {
   expect(createResp).toStrictEqual(dogWithId);
 
   // Try to get the same dog
-  const getOneResp = await apiClient.getDog({
+  const getOneResp = await client.getDog({
     params: {
       _id,
     },
@@ -50,13 +50,13 @@ it('Test API', async () => {
   expect(getOneResp).toStrictEqual(dogWithId);
 
   // Get all the dogs
-  const getAllResp = await apiClient.getDogs({});
+  const getAllResp = await client.getDogs({});
   expect(getAllResp).toStrictEqual([dogWithId]);
 
   // Try to get a dog that doesn't exist
   const fakeId = 'not-a-real-dog';
   try {
-    await apiClient.getDog({
+    await client.getDog({
       params: {
         _id: fakeId,
       },
