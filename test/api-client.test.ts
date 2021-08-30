@@ -1,65 +1,7 @@
-import { createRouteRequest, replaceUrlParams, RouteRequestType } from '../src/api-client';
-import { Route } from '../src/route';
-import nock from 'nock';
-import {
-  CreateDogEndpointDef,
-  GetDogEndpointDef,
-  getDogRoute,
-  GetDogsEndpointDef,
-  getDogsRoute,
-  postDogRoute,
-} from './example-routes';
-import { scoobyDoo } from './dog';
+import { replaceUrlParams } from '../src';
 
 it('replaceUrlParams(..)', async () => {
   const params = { a: 1, b: 2 };
   const path = '/something/:a/:b';
   expect(replaceUrlParams(path, params)).toBe('/something/1/2');
-});
-
-describe('Test creating API client', () => {
-  const baseUrl = 'http://not-real';
-  const interceptor = nock(baseUrl);
-  const createRequest = <T extends RouteRequestType>(route: Route) => createRouteRequest<T>(route, baseUrl);
-  const client = {
-    createDog: createRequest<CreateDogEndpointDef>(postDogRoute),
-    getDog: createRequest<GetDogEndpointDef>(getDogRoute),
-    getDogs: createRequest<GetDogsEndpointDef>(getDogsRoute),
-  };
-
-  const dogWithId = {
-    ...scoobyDoo,
-    _id: 'fakeId',
-  };
-
-  const createDogOpts = {
-    body: scoobyDoo,
-  };
-
-  it('createDog(..) 200', async () => {
-    interceptor.post(postDogRoute.path, scoobyDoo).reply(200, dogWithId);
-
-    const resp = await client.createDog(createDogOpts);
-
-    expect(resp).toStrictEqual(dogWithId);
-  });
-
-  it('createDog(..) 500', async () => {
-    interceptor.post(postDogRoute.path, scoobyDoo).reply(500, { msg: 'failed' });
-    expect(client.createDog(createDogOpts)).rejects.toThrow(/Request failed with status code 500/);
-  });
-
-  it('getDog(..) 200', async () => {
-    const _id = dogWithId._id;
-    const url = replaceUrlParams(getDogRoute.path, { _id });
-    interceptor.get(url).reply(200, dogWithId);
-    const resp = await client.getDog({ params: { _id } });
-    expect(resp).toStrictEqual(dogWithId);
-  });
-
-  it('getDogs(..) 200', async () => {
-    interceptor.get(getDogsRoute.path).reply(200, [dogWithId]);
-    const resp = await client.getDogs({});
-    expect(resp).toStrictEqual([dogWithId]);
-  });
 });
