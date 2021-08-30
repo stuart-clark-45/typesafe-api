@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import { urlJoin } from 'url-join-ts';
-import { AbstractEndpointDef, StandardEndpointDef } from '@src/endpoint';
-import { Route } from '@src/route';
+import { AbstractEndpointDef, StandardEndpointDef } from './endpoint';
+import { Route } from './route';
 
 /**
  * e.g.

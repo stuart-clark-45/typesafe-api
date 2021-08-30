@@ -17,9 +17,7 @@
     "strictNullChecks": false,
     "resolveJsonModule": true,
     "baseUrl": ".",
-    "paths": {
-      "@src/*": ["src/*"]
-    },
+    "paths": {},
     "lib": ["esnext", "dom"]
   },
   "include": ["src/**/*.ts", "tests/**/*.ts"],

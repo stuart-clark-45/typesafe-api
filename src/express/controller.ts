@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { AbstractEndpointDef, StandardEndpointDef } from '@src/endpoint';
+import { AbstractEndpointDef, StandardEndpointDef } from '../endpoint';
 
 export type TRequest<T extends AbstractEndpointDef> = Request<
   T['requestOptions']['params'],
