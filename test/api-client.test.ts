@@ -6,6 +6,7 @@ import {
   GetDogEndpointDef,
   getDogRoute,
   GetDogsEndpointDef,
+  getDogsRoute,
   postDogRoute,
 } from './example-routes';
 
@@ -22,7 +23,7 @@ describe('Test creating API client', () => {
   const client = {
     createDog: createRequest<CreateDogEndpointDef>(postDogRoute),
     getDog: createRequest<GetDogEndpointDef>(getDogRoute),
-    getDogs: createRequest<GetDogsEndpointDef>(getDogRoute),
+    getDogs: createRequest<GetDogsEndpointDef>(getDogsRoute),
   };
 
   const dog = {

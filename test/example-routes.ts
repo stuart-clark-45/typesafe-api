@@ -22,14 +22,20 @@ interface CreateDogReq extends ReqOptions {
 }
 export type CreateDogEndpointDef = EndpointDef<CreateDogReq, DogWithId>;
 
-// Get dog route
-export const getDogRoute: Route = {
+// Get dogs route
+export const getDogsRoute: Route = {
   method: 'get',
   path: '/dog',
 };
 
 // Get dogs endpoint
 export type GetDogsEndpointDef = EndpointDef<ReqOptions, DogWithId[]>;
+
+// Get dog route
+export const getDogRoute: Route = {
+  method: 'get',
+  path: '/dog/:_id',
+};
 
 // Get dogs endpoint
 interface GetDogReq extends ReqOptions {
