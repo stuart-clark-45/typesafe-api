@@ -19,3 +19,7 @@ export type Controller<T extends AbstractEndpointDef> = (
 export const sendError = <T extends StandardEndpointDef>(res: TResponse<T>, errorType: T['errorType']): void => {
   res.status(errorType.status).send(errorType);
 };
+
+export const parseHeaders = <T extends AbstractEndpointDef>(req: TRequest<T>): T['requestOptions']['headers'] => {
+  return req.headers;
+}
