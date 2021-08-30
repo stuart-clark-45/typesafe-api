@@ -3,7 +3,7 @@ import { startApp } from './example-express';
 import { GetDogEndpointDef, GetDogErrorType } from './example-routes';
 import { AxiosError } from 'axios';
 import { ErrorHandlers, handleError } from '../src';
-import { DogApiClient } from './example-api-client';
+import { RootApiClient } from './example-api-client';
 
 export const OBJECT_ID_STRING = /^[a-f\d]{24}$/i;
 
@@ -27,7 +27,7 @@ afterAll(async () => {
 });
 
 it('Test API', async () => {
-  const client = new DogApiClient(baseUrl);
+  const client = new RootApiClient(baseUrl).dog();
 
   // Create a dog
   const createResp = await client.createDog({

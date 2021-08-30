@@ -4,10 +4,10 @@ import { AbstractEndpointDef, StandardEndpointDef } from './endpoint';
 import { Route } from './route';
 
 export abstract class AbstractApiClient {
-  constructor(private baseUrl: string) {}
+  constructor(private baseUrl: string | null, private parent?: AbstractApiClient) {}
 
   public getBaseUrl(): string {
-    return this.baseUrl;
+    return this.parent?.getBaseUrl() || this.baseUrl;
   }
 }
 
