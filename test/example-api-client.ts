@@ -6,9 +6,9 @@ import {
   getDogsRoute,
   postDogRoute,
 } from './example-routes';
-import { ApiClientDef, apiClientBuilder, createRouteRequest } from '../src';
+import { apiClientBuilder, createRouteRequest } from '../src';
 
-const clientDef: ApiClientDef = {
+const clientDef = {
   createDog: createRouteRequest<CreateDogEndpointDef>(postDogRoute),
   getDog: createRouteRequest<GetDogEndpointDef>(getDogRoute),
   getDogs: createRouteRequest<GetDogsEndpointDef>(getDogsRoute),

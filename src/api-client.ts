@@ -54,9 +54,13 @@ export const createRouteRequest = <T extends AbstractEndpointDef>(route: Route):
   };
 };
 
-export type ApiClientDef = Record<string, RouteRequest<AbstractEndpointDef>>;
+type ApiClientDef = {
+  [key: string]: RouteRequest<AbstractEndpointDef>;
+};
 
-export type ApiClient<T extends ApiClientDef> = Record<keyof T, RouteRequestCallable<AbstractEndpointDef>>;
+export type ApiClient<T extends ApiClientDef> = {
+  [key in keyof T]: RouteRequestCallable<AbstractEndpointDef>;
+};
 
 export type ApiClientBuilder<T extends ApiClientDef> = (baseUrl: string) => ApiClient<T>;
 
