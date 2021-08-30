@@ -1,4 +1,4 @@
-import { Controller, TRequest, TResponse } from '../src/express';
+import { Controller, sendError, TRequest, TResponse } from '../src/express';
 import { CreateDogEndpointDef, GetDogEndpointDef, GetDogsEndpointDef } from './example-routes';
 import { dogDB, DogWithId } from './dog';
 import ObjectID from 'bson-objectid';
@@ -20,7 +20,15 @@ export const getDogController: Controller<GetDogEndpointDef> = (
   req: TRequest<GetDogEndpointDef>,
   res: TResponse<GetDogEndpointDef>
 ) => {
-  res.send(dogDB.get(req.params._id));
+  const { _id } = req.params;
+  if (dogDB.has(_id)) {
+    res.send(dogDB.get(_id));
+  } else {
+    sendError(res, {
+      status: 404,
+      msg: `No dog with _id ${_id} could be found`,
+    });
+  }
 };
 
 export const getDogsController: Controller<GetDogsEndpointDef> = (
