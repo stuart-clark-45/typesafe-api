@@ -3,7 +3,7 @@
     "target": "es6",
     "module": "commonjs",
     "declaration": true,
-    "declarationDir": "dist/types",
+    "declarationDir": "dist",
     "outDir": "dist",
     "sourceMap": true,
     "experimentalDecorators": true,
