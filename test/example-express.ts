@@ -1,6 +1,6 @@
 import express from 'express';
 import findFreePorts from 'find-free-ports';
-import { addRoute, ExpressRoute } from '../src/express';
+import { addRoute, addRoutes, ExpressRoute } from '../src/express';
 import {
   CreateDogEndpointDef,
   GetDogEndpointDef,
@@ -15,26 +15,30 @@ const app = express();
 
 const middleware = [express.json()];
 
+const routes: ExpressRoute<any>[] = [];
+
 const ePostDogRoute: ExpressRoute<CreateDogEndpointDef> = {
   ...postDogRoute,
   middleware,
   controller: createDogController,
 };
-addRoute(app, ePostDogRoute);
+routes.push(ePostDogRoute);
 
 const eGetDogRoute: ExpressRoute<GetDogEndpointDef> = {
   ...getDogRoute,
   middleware,
   controller: getDogController,
 };
-addRoute(app, eGetDogRoute);
+routes.push(eGetDogRoute);
 
 const eGetDogsRoute: ExpressRoute<GetDogsEndpointDef> = {
   ...getDogsRoute,
   middleware,
   controller: getDogsController,
 };
-addRoute(app, eGetDogsRoute);
+routes.push(eGetDogsRoute);
+
+addRoutes(app, routes);
 
 export const startApp = async (): Promise<{ server: any; baseUrl: string }> => {
   const [port] = await findFreePorts();
