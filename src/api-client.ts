@@ -84,6 +84,10 @@ export const handleError = <T extends StandardEndpointDef>(
   err: AxiosError<T['errorType']>,
   handlers: ErrorHandlers<T>
 ): void | Promise<void> => {
-  const handler = handlers[err.response.data.status as keyof ErrorHandlers<T>];
+  const status = err.response.data.status;
+  const handler = handlers[status as keyof ErrorHandlers<T>];
+  if (!handler) {
+    throw err;
+  }
   return handler(err);
 };
