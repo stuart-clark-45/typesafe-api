@@ -13,7 +13,7 @@ import { Route } from '@src/route';
  * @param path
  * @param params
  */
-export const replaceUrlParams = (path: string, params: Record<string, unknown>) => {
+export const replaceUrlParams = (path: string, params: Record<string, unknown>): string => {
   if (params) {
     for (const [key, value] of Object.entries(params)) {
       const pattern = new RegExp(`(:${key})(/|$)`);
@@ -27,7 +27,7 @@ export const replaceUrlParams = (path: string, params: Record<string, unknown>) 
 export type RouteRequestType = EndpointDef<ReqOptions, any>;
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const createRouteRequest = <T extends RouteRequestType>(route: Route, baseUrl: string) => {
+const createRouteRequest = <T extends RouteRequestType>(route: Route, baseUrl: string) => {
   const { method } = route;
 
   return async (options: T['requestOptions']): Promise<T['responseBody']> => {
@@ -49,4 +49,9 @@ export const createRouteRequest = <T extends RouteRequestType>(route: Route, bas
     const response = await axios.request<T['responseBody']>(config);
     return response.data;
   };
+};
+
+export const routeRequestCreator = (baseUrl: string) => {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  return <T extends RouteRequestType>(route: Route) => createRouteRequest<T>(route, baseUrl);
 };
