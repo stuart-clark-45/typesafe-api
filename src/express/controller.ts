@@ -22,4 +22,4 @@ export const sendError = <T extends StandardEndpointDef>(res: TResponse<T>, erro
 
 export const parseHeaders = <T extends AbstractEndpointDef>(req: TRequest<T>): T['requestOptions']['headers'] => {
   return req.headers;
-}
+};
