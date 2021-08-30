@@ -1,6 +1,6 @@
 {
   "name": "typesafe-api",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A type safe was to create apis",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
