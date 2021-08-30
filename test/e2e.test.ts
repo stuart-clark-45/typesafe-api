@@ -1,6 +1,6 @@
 import { clearDogDB, scoobyDoo } from './dog';
 import { startApp } from './example-express';
-import { GetDogEndpointDef, GetDogErrorType } from './example-routes';
+import { GetDogEndpointDef, GetDogErrorType, HeaderTestResp } from './example-routes';
 import { AxiosError } from 'axios';
 import { ErrorHandlers, handleError } from '../src';
 import { RootApiClient } from './example-api-client';
@@ -27,10 +27,23 @@ afterAll(async () => {
 });
 
 it('Test API', async () => {
-  const client = new RootApiClient(baseUrl).dog();
+  const rootApiClient = new RootApiClient(baseUrl);
+  const dogClient = rootApiClient.dog();
+
+  // Header test
+  const testHeaderValue = 'test-header-value';
+  const headerTestResp = await rootApiClient.headerTest({
+    headers: {
+      myheader: testHeaderValue,
+    },
+  });
+  const expected: HeaderTestResp = {
+    headerValue: testHeaderValue,
+  };
+  expect(headerTestResp).toStrictEqual(expected);
 
   // Create a dog
-  const createResp = await client.createDog({
+  const createResp = await dogClient.createDog({
     body: scoobyDoo,
   });
   const { _id } = createResp;
@@ -42,7 +55,7 @@ it('Test API', async () => {
   expect(createResp).toStrictEqual(dogWithId);
 
   // Try to get the same dog
-  const getOneResp = await client.getDog({
+  const getOneResp = await dogClient.getDog({
     params: {
       _id,
     },
@@ -50,13 +63,13 @@ it('Test API', async () => {
   expect(getOneResp).toStrictEqual(dogWithId);
 
   // Get all the dogs
-  const getAllResp = await client.getDogs({});
+  const getAllResp = await dogClient.getDogs({});
   expect(getAllResp).toStrictEqual([dogWithId]);
 
   // Try to get a dog that doesn't exist
   const fakeId = 'not-a-real-dog';
   try {
-    await client.getDog({
+    await dogClient.getDog({
       params: {
         _id: fakeId,
       },

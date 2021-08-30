@@ -1,15 +1,17 @@
 import express from 'express';
 import findFreePorts from 'find-free-ports';
-import { addRoute, addRoutes, ExpressRoute } from '../src/express';
+import { addRoutes, ExpressRoute } from '../src/express';
 import {
   CreateDogEndpointDef,
   GetDogEndpointDef,
   getDogRoute,
   GetDogsEndpointDef,
   getDogsRoute,
+  HeaderTestEndpointDef,
+  headerTestRoute,
   postDogRoute,
 } from './example-routes';
-import { createDogController, getDogController, getDogsController } from './example-controller';
+import { createDogController, getDogController, getDogsController, headerTestController } from './example-controller';
 
 const app = express();
 
@@ -37,6 +39,13 @@ const eGetDogsRoute: ExpressRoute<GetDogsEndpointDef> = {
   controller: getDogsController,
 };
 routes.push(eGetDogsRoute);
+
+const eHeaderTestRoute: ExpressRoute<HeaderTestEndpointDef> = {
+  ...headerTestRoute,
+  middleware,
+  controller: headerTestController,
+};
+routes.push(eHeaderTestRoute);
 
 addRoutes(app, routes);
 

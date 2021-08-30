@@ -38,3 +38,22 @@ export interface GetDogReq extends ReqOptions {
 export type GetDogErrorType = ErrorType<500 | 404>;
 
 export type GetDogEndpointDef = EndpointDef<GetDogReq, DogWithId, GetDogErrorType>;
+
+// Header test endpoint
+export const headerTestRoute: Route = {
+  method: 'get',
+  path: '/header-tst',
+};
+
+// Header test endpoint
+export interface HeaderTestReq extends ReqOptions {
+  headers: {
+    myheader: string;
+  };
+}
+
+export interface HeaderTestResp {
+  headerValue: string;
+}
+
+export type HeaderTestEndpointDef = EndpointDef<HeaderTestReq, HeaderTestResp>;

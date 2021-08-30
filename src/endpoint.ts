@@ -2,6 +2,9 @@ export interface ReqOptions {
   query?: Record<string, unknown>;
   params?: Record<string, unknown>;
   body?: any;
+  /**
+   * keys should be lowercase
+   */
   headers?: Record<string, unknown>;
 }
 
