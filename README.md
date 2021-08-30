@@ -58,7 +58,7 @@ When defining an API endpoint there are two main concepts we need to think about
 Let's define an endpoint...
  
 ```typescript
-import {EndpointDef, ErrorType, ReqOptions, Route} from 'typesafe-api';
+import {EndpointDef, ErrorHandlers, ErrorType, ReqOptions, Route} from 'typesafe-api';
 
 // Define the route at which the endpoint belongs
 export const helloWoldRoute: Route = {
@@ -80,23 +80,27 @@ export interface HelloWorldResp {
 }
 
 // Define any error that may be thrown by the endpoint, the default is just `500`
-type HelloWorldErrors = ErrorType<500|400>
+export type HelloWorldErrors = ErrorType<500|400>
 
 // Create the endpoint definition this type encapsulates the full endpoint spec
 export type HelloWorldEndpointDef = EndpointDef<HelloWorldReq, HelloWorldResp, HelloWorldErrors>
 ```
 
-Now we have our route and endpoint defined we very easily create an `ApiClient` for it.
+Now we have our route and endpoint defined we can very easily create an `ApiClient` for it.
 
 ```typescript
-import {createRouteRequest, ApiClientDef, apiClientBuilder} from 'typesafe-api';
+import {AbstractApiClient, createRouteRequest} from 'typesafe-api';
 import {helloWoldRoute, HelloWorldEndpointDef} from './routes';
 
-const clientDef: ApiClientDef = {
-  helloWorld: createRouteRequest<HelloWorldEndpointDef>(helloWoldRoute),
-};
+// Create a client for our endpoint
+class HelloApiClient extends AbstractApiClient {
+  public helloWorld = createRouteRequest<HelloWorldEndpointDef>(this, helloWoldRoute);
+}
 
-export const apiClient = apiClientBuilder(clientDef);
+// Depending how many endpoints you have you may want to start nesting your API clients like this
+export class RootApiClient extends AbstractApiClient {
+  public helloApi = (): HelloApiClient => new HelloApiClient(null, this);
+}
 ```
 
 Great that's our API spec all sorted. Now all that remains make sure __everything is exported__ and 
