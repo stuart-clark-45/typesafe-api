@@ -52,4 +52,19 @@ describe('Test creating API client', () => {
     interceptor.post(postDogRoute.path, dog).reply(500, { msg: 'failed' });
     expect(client.createDog(createDogOpts)).rejects.toThrow(/Request failed with status code 500/);
   });
+
+  it('getDog(..) 200', async () => {
+    const _id = dogWithId._id;
+    const url = replaceUrlParams(getDogRoute.path, { _id });
+    interceptor.get(url).reply(200, dogWithId);
+    const resp = await client.getDog({ params: { _id } });
+    expect(resp).toStrictEqual(dogWithId);
+  });
+
+  it('getDogs(..) 200', async () => {
+    interceptor.get(getDogsRoute.path).reply(200, [dogWithId]);
+    const resp = await client.getDogs({});
+    expect(resp).toStrictEqual([dogWithId]);
+  });
+
 });
