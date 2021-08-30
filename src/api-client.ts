@@ -1,6 +1,12 @@
-import axios, { AxiosRequestConfig } from 'axios';
+import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import { urlJoin } from 'url-join-ts';
-import { EndpointDef, ReqOptions } from '@src/endpoint';
+import {
+  AbstractEndpointDef,
+  EndpointDef,
+  ErrorType,
+  ReqOptions,
+  StandardEndpointDef
+} from '@src/endpoint';
 import { Route } from '@src/route';
 
 /**
@@ -24,7 +30,7 @@ export const replaceUrlParams = (path: string, params: Record<string, unknown>):
   return path;
 };
 
-export type RouteRequestType = EndpointDef<ReqOptions, any>;
+export type RouteRequestType = EndpointDef<ReqOptions, any, any>;
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 const createRouteRequest = <T extends RouteRequestType>(route: Route, baseUrl: string) => {
@@ -54,4 +60,20 @@ const createRouteRequest = <T extends RouteRequestType>(route: Route, baseUrl: s
 export const routeRequestCreator = (baseUrl: string) => {
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   return <T extends RouteRequestType>(route: Route) => createRouteRequest<T>(route, baseUrl);
+};
+
+type ErrorStatuses<T extends StandardEndpointDef> = T['errorType']['status'];
+
+type ErrorHandlerFnc<T extends StandardEndpointDef> = (err: AxiosError<T['errorType']>) => void | Promise<void>;
+
+export type ErrorHandlers<T extends StandardEndpointDef> = {
+  [key in ErrorStatuses<T>]: ErrorHandlerFnc<T>;
+};
+
+export const handleError = <T extends StandardEndpointDef>(
+  err: AxiosError<T['errorType']>,
+  handlers: ErrorHandlers<T>
+): void | Promise<void> => {
+  const handler = handlers[err.response.data.status as keyof ErrorHandlers<T>];
+  return handler(err);
 };
