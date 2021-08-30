@@ -1,12 +1,6 @@
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import { urlJoin } from 'url-join-ts';
-import {
-  AbstractEndpointDef,
-  EndpointDef,
-  ErrorType,
-  ReqOptions,
-  StandardEndpointDef
-} from '@src/endpoint';
+import { EndpointDef, ReqOptions, StandardEndpointDef } from '@src/endpoint';
 import { Route } from '@src/route';
 
 /**
