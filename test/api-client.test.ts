@@ -9,6 +9,7 @@ import {
   getDogsRoute,
   postDogRoute,
 } from './example-routes';
+import { scoobyDoo } from './dog';
 
 it('replaceUrlParams(..)', async () => {
   const params = { a: 1, b: 2 };
@@ -26,22 +27,17 @@ describe('Test creating API client', () => {
     getDogs: createRequest<GetDogsEndpointDef>(getDogsRoute),
   };
 
-  const dog = {
-    name: 'Scooby Doo',
-    breed: 'Great Dane',
-  };
-
   const dogWithId = {
-    ...dog,
+    ...scoobyDoo,
     _id: 'fakeId',
   };
 
   const createDogOpts = {
-    body: dog,
+    body: scoobyDoo,
   };
 
   it('createDog(..) 200', async () => {
-    interceptor.post(postDogRoute.path, dog).reply(200, dogWithId);
+    interceptor.post(postDogRoute.path, scoobyDoo).reply(200, dogWithId);
 
     const resp = await client.createDog(createDogOpts);
 
@@ -49,7 +45,7 @@ describe('Test creating API client', () => {
   });
 
   it('createDog(..) 500', async () => {
-    interceptor.post(postDogRoute.path, dog).reply(500, { msg: 'failed' });
+    interceptor.post(postDogRoute.path, scoobyDoo).reply(500, { msg: 'failed' });
     expect(client.createDog(createDogOpts)).rejects.toThrow(/Request failed with status code 500/);
   });
 
@@ -66,5 +62,4 @@ describe('Test creating API client', () => {
     const resp = await client.getDogs({});
     expect(resp).toStrictEqual([dogWithId]);
   });
-
 });

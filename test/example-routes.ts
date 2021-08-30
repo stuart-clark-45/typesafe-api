@@ -1,14 +1,6 @@
-import { EndpointDef, ReqOptions } from '../src/endpoint';
-import { Route } from '../src/route';
-
-interface Dog {
-  name: string;
-  breed: string;
-}
-
-interface DogWithId extends Dog {
-  _id: string;
-}
+import { EndpointDef, ReqOptions } from '../src';
+import { Route } from '../src';
+import { Dog, DogWithId } from './dog';
 
 // Post dog route
 export const postDogRoute: Route = {
