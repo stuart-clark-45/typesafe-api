@@ -66,7 +66,7 @@ export const helloWoldRoute: Route = {
   path: '/hello-world'
 };
 
-// Define the all parameters that are required to make the request
+// Define the all parameters that are required to make the request see (ReqOptions for other options)
 export interface HelloWorldReq extends ReqOptions {
   query: {
     yourName: string;
