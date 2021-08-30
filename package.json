@@ -12,7 +12,8 @@
     "build": "tsc",
     "start": "tsc -w",
     "lint": "eslint './src/**/*.ts'",
-    "prepare": "npm run build",
+    "lint-bail": "eslint --bail './src/**/*.ts'",
+    "prepare": "npm run lint-bail && npm run build",
     "test": "jest -i --coverage"
   },
   "keywords": [
