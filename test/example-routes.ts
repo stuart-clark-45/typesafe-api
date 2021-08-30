@@ -8,7 +8,7 @@ export const postDogRoute: Route = {
 };
 
 // Create dog endpoint
-interface CreateDogReq extends ReqOptions {
+export interface CreateDogReq extends ReqOptions {
   body: Dog;
 }
 export type CreateDogEndpointDef = EndpointDef<CreateDogReq, DogWithId>;
@@ -29,7 +29,7 @@ export const getDogRoute: Route = {
 };
 
 // Get dogs endpoint
-interface GetDogReq extends ReqOptions {
+export interface GetDogReq extends ReqOptions {
   params: {
     _id: string;
   };
