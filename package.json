@@ -5,6 +5,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "source": "src/index.ts",
+  "repository": "https://github.com/stuart-clark-45/typesafe-api",
+  "homepage": "https://github.com/stuart-clark-45/typesafe-api/blob/master/README.md",
   "files": [
     "dist"
   ],
