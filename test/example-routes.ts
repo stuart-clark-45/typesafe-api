@@ -1,6 +1,5 @@
 import { EndpointDef, ReqOptions } from '../src/endpoint';
 import { Route } from '../src/route';
-import { createRouteRequest, RouteRequestType } from '../src/api-client';
 
 interface Dog {
   name: string;
@@ -12,7 +11,7 @@ interface DogWithId extends Dog {
 }
 
 // Post dog route
-export  const postDogRoute: Route = {
+export const postDogRoute: Route = {
   method: 'post',
   path: '/dog',
 };
@@ -24,13 +23,13 @@ interface CreateDogReq extends ReqOptions {
 export type CreateDogEndpointDef = EndpointDef<CreateDogReq, DogWithId>;
 
 // Get dog route
-export  const getDogRoute: Route = {
+export const getDogRoute: Route = {
   method: 'get',
   path: '/dog',
 };
 
 // Get dogs endpoint
-export  type GetDogsEndpointDef = EndpointDef<ReqOptions, DogWithId[]>;
+export type GetDogsEndpointDef = EndpointDef<ReqOptions, DogWithId[]>;
 
 // Get dogs endpoint
 interface GetDogReq extends ReqOptions {
@@ -38,4 +37,4 @@ interface GetDogReq extends ReqOptions {
     _id: string;
   };
 }
-export  type GetDogEndpointDef = EndpointDef<GetDogReq, DogWithId>;
+export type GetDogEndpointDef = EndpointDef<GetDogReq, DogWithId>;
