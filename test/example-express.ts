@@ -9,7 +9,7 @@ import {
   getDogsRoute,
   postDogRoute,
 } from './example-routes';
-import { createDogController, getDogController, getDogsController } from './dog-controller';
+import { createDogController, getDogController, getDogsController } from './example-controller';
 
 const app = express();
 
