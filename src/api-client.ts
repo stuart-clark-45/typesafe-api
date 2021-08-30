@@ -84,6 +84,12 @@ export const handleError = <T extends StandardEndpointDef>(
   err: AxiosError<T['errorType']>,
   handlers: ErrorHandlers<T>
 ): void | Promise<void> => {
+  // Double check the right error has been given here, {@code err} is unlikely to be typed
+  // when given as parameter due to the nature of "try catch"
+  if (!err?.isAxiosError) {
+    throw err;
+  }
+
   const status = err.response.data.status;
   const handler = handlers[status as keyof ErrorHandlers<T>];
   if (!handler) {
