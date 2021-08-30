@@ -104,4 +104,167 @@ export class RootApiClient extends AbstractApiClient {
 ```
 
 Great that's our API spec all sorted. Now all that remains make sure __everything is exported__ and 
-publish your spec an an npm module.  
+publish your spec an an npm module. In this example the package published is called `typesafe-api-demo-api-spec` 
+
+### Backend
+
+Currently this is only full implemented for `express` however if you dont use this (or something compatible)
+you should still get a lot out of importing the `EndpointDef`s and `Routes` into your project. 
+
+Contributions very welcome if you find a way to fully integrate with any other server frameworks :) 
+
+#### Controller
+
+So assuming you are using `express` we want to start out by creating a `Controller` to handle our requests...
+
+```typescript
+import {Controller, sendError, TRequest, TResponse} from 'typesafe-api';
+import {HelloWorldEndpointDef} from 'typesafe-api-demo-api-spec';
+
+
+export const helloWorldController: Controller<HelloWorldEndpointDef> = (
+  req: TRequest<HelloWorldEndpointDef>,
+  res: TResponse<HelloWorldEndpointDef>
+) => {
+
+  // `req.query` is typesafe so you know which keys have been set in the request
+  const name = req.query.yourName;
+
+  // As an example, let's return an error the name parameter is a number
+  const isNumber = (s: string) => /^\d+$/.test(s);
+  if (isNumber(name)) {
+
+    // This error object is typesafe, including the status so you can only select from the
+    // statuses given in the endpoint definition
+    return sendError(res, {
+      status: 400,
+      msg: "Surely your name isn't a number?? 😵"
+    });
+
+  }
+
+  // No surprises, this body is typesafe too!
+  res.send({
+    msg: `Hello ${name}!`,
+    date: new Date()
+  })
+
+};
+``` 
+
+These `Controller`s are completely compatible with `express` so using the routing in the next stage is 
+optional (tho advised as it guaranties your routes are correct)
+
+#### Routes
+
+Now we have a controller we just need to set up a route to it.
+
+Here is a very simple express app using our newly created `Controller`
+
+```typescript
+import express, {RequestHandler} from 'express';
+import {addRoute, ExpressRoute} from 'typesafe-api';
+import {helloWorldController} from './hello-world';
+import {helloWoldRoute, HelloWorldEndpointDef} from 'typesafe-api-demo-api-spec';
+import cors from 'cors';
+
+const app = express();
+
+// Define the middleware we want for the route
+const middleware: RequestHandler[] = [cors(), express.json()];
+
+// Import the route from the api-spec then add the additional fields needed for an {@link ExpressRoute}
+const eHelloWorldRoute: ExpressRoute<HelloWorldEndpointDef> = {
+  ...helloWoldRoute,
+  middleware,
+  controller: helloWorldController
+};
+
+// Add the route to the express app
+addRoute(app, eHelloWorldRoute);
+
+// Start the server
+const port = 7809;
+const server = app.listen(port, () => {
+  console.log(`Example app listening at http://localhost:${port}`);
+});
+```
+
+### Frontend
+
+Great so now we have a working endpoint we want to use it. In this example we will use  a simple 
+react app. However, the steps are very similar for any backend systems you want to consume your API.
+
+One you have your API spec installed you can define a component similar to this
+
+```typescript jsx
+import React, {useState} from 'react';
+import './App.css';
+import {ErrorHandlers, handleError} from 'typesafe-api';
+import {HelloWorldEndpointDef, RootApiClient} from 'typesafe-api-demo-api-spec';
+
+// The base url of your backend
+const baseUrl = "http://localhost:7809";
+
+// Get an instance of the api client we want to use from the api spec created
+const helloApi = new RootApiClient(baseUrl).helloApi();
+
+// Define a helper function to call the endpoint
+const callHelloWorld = (name: string) => {
+  return helloApi.helloWorld({
+    query: {
+      yourName: name,
+    }
+  });
+};
+
+function App() {
+  const [name, setName] = useState("");
+  const [responseText, setResponseText] = useState("");
+  
+  // Set up error handlers in case the API call fails 
+  // (the compiler will tell you if you are missing any)
+  const callHelloWorldError: ErrorHandlers<HelloWorldEndpointDef> = {
+    500: (err) => {throw err;},
+    400: (err) => {
+      const response = err.response;
+      if (!response) {
+        throw err;
+      }
+      setResponseText(response.data.msg)
+    }
+  };
+  
+  // Define onClick function that calls the endpoint and handles any errors
+  const onClick = async () => {
+    try {
+      const {msg} = await callHelloWorld(name);
+      setResponseText(msg);
+    } catch (err) {
+      handleError(err as any, callHelloWorldError);
+    }
+  };
+
+  return (
+    <div className="App">
+      <header className="App-header">
+        <p>
+          Enter your name
+        </p>
+        <input value={name} onChange={(e) => setName(e.target.value)}/>
+        <button onClick={() => onClick()} >Say hi!</button>
+        <p>
+          {responseText}
+        </p>
+      </header>
+    </div>
+  );
+}
+
+export default App;
+```
+
+And that's it you now have a typesafe API. The full source code for this example can be found
+ [here](https://github.com/stuart-clark-45/typesafe-api-example) if you want to try it for yourself.
+ 
+ 
