@@ -3,6 +3,14 @@ import { urlJoin } from 'url-join-ts';
 import { AbstractEndpointDef, StandardEndpointDef } from './endpoint';
 import { Route } from './route';
 
+export abstract class AbstractApiClient {
+  constructor(private baseUrl: string) {}
+
+  public getBaseUrl(): string {
+    return this.baseUrl;
+  }
+}
+
 /**
  * e.g.
  *
@@ -26,51 +34,29 @@ export const replaceUrlParams = (path: string, params: Record<string, unknown>):
 
 type RouteRequestCallable<T extends AbstractEndpointDef> = (options: T['requestOptions']) => Promise<T['responseBody']>;
 
-type RouteRequest<T extends AbstractEndpointDef> = (baseUrl: string) => RouteRequestCallable<T>;
-
-export const createRouteRequest = <T extends AbstractEndpointDef>(route: Route): RouteRequest<T> => {
+export const createRouteRequest = <T extends AbstractEndpointDef>(
+  apiClient: AbstractApiClient,
+  route: Route
+): RouteRequestCallable<T> => {
   const { method } = route;
+  return async (options: T['requestOptions']): Promise<T['responseBody']> => {
+    const { params, query, body, headers } = options;
 
-  return (baseUrl: string): RouteRequestCallable<T> => {
-    return async (options: T['requestOptions']): Promise<T['responseBody']> => {
-      const { params, query, body, headers } = options;
+    // Build the url
+    const routePath = replaceUrlParams(route.path, params);
+    const url = urlJoin(apiClient.getBaseUrl(), routePath);
 
-      // Build the url
-      const routePath = replaceUrlParams(route.path, params);
-      const url = urlJoin(baseUrl, routePath);
-
-      // Make the request
-      const config: AxiosRequestConfig = {
-        method,
-        url,
-        params: query,
-        data: body,
-        headers,
-        validateStatus: (status) => status >= 200 && status < 300,
-      };
-      const response = await axios.request<T['responseBody']>(config);
-      return response.data;
+    // Make the request
+    const config: AxiosRequestConfig = {
+      method,
+      url,
+      params: query,
+      data: body,
+      headers,
+      validateStatus: (status) => status >= 200 && status < 300,
     };
-  };
-};
-
-type ApiClientDef = {
-  [key: string]: RouteRequest<AbstractEndpointDef>;
-};
-
-export type ApiClient<T extends ApiClientDef> = {
-  [key in keyof T]: RouteRequestCallable<AbstractEndpointDef>;
-};
-
-export type ApiClientBuilder<T extends ApiClientDef> = (baseUrl: string) => ApiClient<T>;
-
-export const apiClientBuilder = <T extends ApiClientDef>(apiDef: T): ApiClientBuilder<T> => {
-  return (baseUrl: string): ApiClient<T> => {
-    const apiClient: Partial<ApiClient<T>> = {};
-    for (const [key, routeRequest] of Object.entries(apiDef)) {
-      apiClient[key as keyof T] = routeRequest(baseUrl);
-    }
-    return apiClient as ApiClient<T>;
+    const response = await axios.request<T['responseBody']>(config);
+    return response.data;
   };
 };
 

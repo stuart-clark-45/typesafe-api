@@ -6,12 +6,10 @@ import {
   getDogsRoute,
   postDogRoute,
 } from './example-routes';
-import { apiClientBuilder, createRouteRequest } from '../src';
+import { AbstractApiClient, createRouteRequest } from '../src';
 
-const clientDef = {
-  createDog: createRouteRequest<CreateDogEndpointDef>(postDogRoute),
-  getDog: createRouteRequest<GetDogEndpointDef>(getDogRoute),
-  getDogs: createRouteRequest<GetDogsEndpointDef>(getDogsRoute),
-};
-
-export const apiClient = apiClientBuilder(clientDef);
+export class DogApiClient extends AbstractApiClient {
+  public createDog = createRouteRequest<CreateDogEndpointDef>(this, postDogRoute);
+  public getDog = createRouteRequest<GetDogEndpointDef>(this, getDogRoute);
+  public getDogs = createRouteRequest<GetDogsEndpointDef>(this, getDogsRoute);
+}
