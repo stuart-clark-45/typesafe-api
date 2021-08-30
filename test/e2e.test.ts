@@ -1,6 +1,9 @@
 import { clearDogDB, scoobyDoo } from './dog';
 import { startApp } from './example-express';
 import { createApiClient } from './example-api-client';
+import { GetDogEndpointDef, GetDogErrorType } from './example-routes';
+import { AxiosError } from 'axios';
+import { ErrorHandlers, handleError } from '../src';
 
 export const OBJECT_ID_STRING = /^[a-f\d]{24}$/i;
 
@@ -12,6 +15,11 @@ beforeAll(async () => {
   server = appStarted.server;
   clearDogDB();
 });
+
+const getDogErrorHandlers: ErrorHandlers<GetDogEndpointDef> = {
+  404: jest.fn(),
+  500: jest.fn(),
+};
 
 afterAll(async () => {
   clearDogDB();
@@ -44,4 +52,27 @@ it('Test API', async () => {
   // Get all the dogs
   const getAllResp = await apiClient.getDogs({});
   expect(getAllResp).toStrictEqual([dogWithId]);
+
+  // Try to get a dog that doesn't exist
+  const fakeId = 'not-a-real-dog';
+  try {
+    await apiClient.getDog({
+      params: {
+        _id: fakeId,
+      },
+    });
+  } catch (err) {
+    // Check the error is returned as expected
+    const e: AxiosError<GetDogErrorType> = err;
+    const expectedError: GetDogErrorType = {
+      status: 404,
+      msg: `No dog with _id ${fakeId} could be found`,
+    };
+    expect(e.response.data).toStrictEqual(expectedError);
+
+    // Test handle error works correctly
+    handleError(e, getDogErrorHandlers);
+    expect(getDogErrorHandlers['404']).toBeCalled();
+    expect(getDogErrorHandlers['500']).toBeCalledTimes(0);
+  }
 });
