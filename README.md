@@ -1,5 +1,7 @@
 # typesafe-api
 
+{:toc}
+
 #### Motivation
 
 Let's face it everybody loves TypeScript and everybody needs APIs. 
