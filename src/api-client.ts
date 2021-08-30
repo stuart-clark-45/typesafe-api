@@ -86,14 +86,16 @@ export const handleError = <T extends StandardEndpointDef>(
 ): void | Promise<void> => {
   // Double check the right error has been given here, {@code err} is unlikely to be typed
   // when given as parameter due to the nature of "try catch"
-  if (!err?.isAxiosError) {
-    throw err;
-  }
+  const isAxiosError = err?.isAxiosError;
 
-  const status = err.response.data.status;
-  const handler = handlers[status as keyof ErrorHandlers<T>];
+  // Check to see if we have a status
+  const status = isAxiosError && err?.response?.status;
+
+  // Try to get a handler
+  const handler = status && handlers[status as keyof ErrorHandlers<T>];
   if (!handler) {
     throw err;
   }
+
   return handler(err);
 };
