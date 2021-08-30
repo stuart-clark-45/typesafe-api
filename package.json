@@ -16,9 +16,11 @@
     "test": "jest -i --coverage"
   },
   "keywords": [
-    "boilerplate",
-    "node",
-    "typescript"
+    "typesafe",
+    "api",
+    "type safe",
+    "client",
+    "generator"
   ],
   "author": "victorlcm",
   "license": "MIT",
