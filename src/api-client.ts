@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import { urlJoin } from 'url-join-ts';
-import { AbstractEndpointDef, StandardEndpointDef } from './endpoint';
+import { AbstractEndpointDef, ReqOptions, StandardEndpointDef } from './endpoint';
 import { Route } from './route';
 
 export abstract class AbstractApiClient {
@@ -34,29 +34,37 @@ export const replaceUrlParams = (path: string, params: Record<string, unknown>):
 
 type RouteRequestCallable<T extends AbstractEndpointDef> = (options: T['requestOptions']) => Promise<T['responseBody']>;
 
+const callRoute = async <T extends AbstractEndpointDef>(
+  apiClient: AbstractApiClient,
+  route: Route,
+  options: ReqOptions
+): Promise<T['responseBody']> => {
+  const { params, query, body, headers } = options;
+  const { method } = route;
+
+  // Build the url
+  const routePath = replaceUrlParams(route.path, params);
+  const url = urlJoin(apiClient.getBaseUrl(), routePath);
+
+  // Make the request
+  const config: AxiosRequestConfig = {
+    method,
+    url,
+    params: query,
+    data: body,
+    headers,
+    validateStatus: (status) => status >= 200 && status < 300,
+  };
+  const response = await axios.request<T['responseBody']>(config);
+  return response.data;
+};
+
 export const createRouteRequest = <T extends AbstractEndpointDef>(
   apiClient: AbstractApiClient,
   route: Route
 ): RouteRequestCallable<T> => {
-  const { method } = route;
   return async (options: T['requestOptions']): Promise<T['responseBody']> => {
-    const { params, query, body, headers } = options;
-
-    // Build the url
-    const routePath = replaceUrlParams(route.path, params);
-    const url = urlJoin(apiClient.getBaseUrl(), routePath);
-
-    // Make the request
-    const config: AxiosRequestConfig = {
-      method,
-      url,
-      params: query,
-      data: body,
-      headers,
-      validateStatus: (status) => status >= 200 && status < 300,
-    };
-    const response = await axios.request<T['responseBody']>(config);
-    return response.data;
+    return callRoute<T>(apiClient, route, options);
   };
 };
 
