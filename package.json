@@ -13,7 +13,7 @@
     "start": "tsc -w",
     "lint": "eslint './src/**/*.ts'",
     "prepare": "npm run build",
-    "test": "jest"
+    "test": "jest -i"
   },
   "keywords": [
     "boilerplate",
