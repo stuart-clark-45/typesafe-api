@@ -1,5 +1,4 @@
-import { EndpointDef, ReqOptions } from '../src';
-import { Route } from '../src';
+import { EndpointDef, ErrorType, ReqOptions, Route } from '../src';
 import { Dog, DogWithId } from './dog';
 
 // Post dog route
@@ -35,4 +34,7 @@ interface GetDogReq extends ReqOptions {
     _id: string;
   };
 }
-export type GetDogEndpointDef = EndpointDef<GetDogReq, DogWithId>;
+
+export type GetDogErrorType = ErrorType<500 | 404>;
+
+export type GetDogEndpointDef = EndpointDef<GetDogReq, DogWithId, GetDogErrorType>;
