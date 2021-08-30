@@ -99,5 +99,5 @@ const clientDef: ApiClientDef = {
 export const apiClient = apiClientBuilder(clientDef);
 ```
 
-Great that's our API spec all sorted. Now all that remains make sure everything is exported in the 
-correct and publish your spec an an npm module.  
+Great that's our API spec all sorted. Now all that remains make sure __everything is exported__ and 
+publish your spec an an npm module.  
