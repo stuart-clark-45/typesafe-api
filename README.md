@@ -171,7 +171,7 @@ Now publish your spec as an npm module. In this example the package published is
 
 ### Backend
 
-Currently this is only full implemented for `express` however if you dont use this (or something compatible)
+Currently this is only fully implemented for `express` however if you dont use this (or something compatible)
 you should still get a lot out of importing the `EndpointDef`s and `Routes` into your project. 
 
 Contributions very welcome if you find a way to fully integrate with any other server frameworks :) 
