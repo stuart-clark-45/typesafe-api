@@ -33,6 +33,9 @@ to consume the api) etc.
 
 Here is a minimal example to get you started...
 
+* N.B. this example implements some dummy authentication. Just in case... please don't
+implement authentication like this in a production app you will have a bad time!  
+
 ### API Spec 
 
 We are going to define an basic API with just one endpoint.
