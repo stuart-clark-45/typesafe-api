@@ -118,8 +118,14 @@ export class RootApiClient extends AbstractApiClient {
 
 ```
 
-Great that's our API spec all sorted. Now all that remains make sure __everything is exported__ and 
-publish your spec an an npm module. In this example the package published is called `typesafe-api-demo-api-spec` 
+Great that's our API spec all sorted. Now all that remains make sure __everything is exported__ in 
+your entry point for your module e.g.
+
+```ts
+// ../typesafe-api-example/api-spec/src/index.ts
+```
+ 
+Now publish your spec as an npm module. In this example the package published is called `typesafe-api-demo-api-spec` 
 
 ### Backend
 
