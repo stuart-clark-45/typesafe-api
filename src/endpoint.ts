@@ -20,6 +20,8 @@ export interface ErrorType<S extends number = 500> {
 
 export interface EndpointDef<DefaultReqOpt extends ReqOptions, ReqOpt extends ReqOptions, RespT, E = ErrorType> {
   requestOptions: Deepmerge<DefaultReqOpt, ReqOpt>;
+  defaultReqOptions: DefaultReqOpt;
+  // These are the parameters that will be required by the API client
   clientReqOptions: ReqOpt;
   responseBody: RespT;
   errorType: E;
