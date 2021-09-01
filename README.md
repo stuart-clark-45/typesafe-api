@@ -1,13 +1,13 @@
-# typesafe-api
+# typesafe-api 
 
-#### Motivation
+### Let your compiler tell you if your API is broken.
 
 Let's face it everybody loves TypeScript and everybody needs APIs. 
 
 We have typesafe frontends and typesafe backends, why not typesafe APIs?
 
 This library will enable you to define your API spec in pure TS, easily create an API client to 
-consume it, and implement routes and handlers on the server side.
+consume it, and implement routes, handlers and middleware on the server side.
 
 This makes for speedy integration and oh so easy maintenance, you'll never miss a parameter in a request again!
 
