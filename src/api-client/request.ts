@@ -1,34 +1,9 @@
-import axios, { AxiosError, AxiosRequestConfig } from 'axios';
-import { RequireExactlyOne } from 'type-fest';
+import axios, { AxiosRequestConfig } from 'axios';
 import { urlJoin } from 'url-join-ts';
-import { AbstractEndpointDef, ReqOptions, StandardEndpointDef } from './endpoint';
-import { Route } from './route';
+import { AbstractEndpointDef, ReqOptions } from '../endpoint';
+import { Route } from '../route';
 import deepMerge from 'deepmerge';
-
-export type ApiClientParams<DefaultReqOpt extends ReqOptions> = RequireExactlyOne<{
-  baseUrl: string;
-  parent: AbstractApiClient<DefaultReqOpt>;
-}> & { defaultReqOptions: DefaultReqOpt };
-
-export abstract class AbstractApiClient<T extends ReqOptions> {
-  constructor(private params: ApiClientParams<T>) {}
-
-  public getBaseUrl(): string {
-    const { parent, baseUrl } = this.params;
-    return parent?.getBaseUrl() || baseUrl;
-  }
-
-  public getDefaultReqOptions(): T {
-    return this.params.defaultReqOptions;
-  }
-
-  public getChildParams(): ApiClientParams<T> {
-    return {
-      parent: this,
-      defaultReqOptions: this.params.defaultReqOptions,
-    };
-  }
-}
+import { AbstractApiClient } from './api-client';
 
 /**
  * e.g.
@@ -97,36 +72,4 @@ export const createRouteRequest = <T extends AbstractEndpointDef>(
   return async (options: T['clientReqOptions']): Promise<T['responseBody']> => {
     return callRoute<T>(apiClient, route, options);
   };
-};
-
-/*
- * Error handling
- */
-
-type ErrorStatuses<T extends StandardEndpointDef> = T['errorType']['status'];
-
-type ErrorHandlerFnc<T extends StandardEndpointDef> = (err: AxiosError<T['errorType']>) => void | Promise<void>;
-
-export type ErrorHandlers<T extends StandardEndpointDef> = {
-  [key in ErrorStatuses<T>]: ErrorHandlerFnc<T>;
-};
-
-export const handleError = <T extends StandardEndpointDef>(
-  err: AxiosError<T['errorType']>,
-  handlers: ErrorHandlers<T>
-): void | Promise<void> => {
-  // Double check the right error has been given here, {@code err} is unlikely to be typed
-  // when given as parameter due to the nature of "try catch"
-  const isAxiosError = err?.isAxiosError;
-
-  // Check to see if we have a status
-  const status = isAxiosError && err?.response?.status;
-
-  // Try to get a handler
-  const handler = status && handlers[status as keyof ErrorHandlers<T>];
-  if (!handler) {
-    throw err;
-  }
-
-  return handler(err);
 };
