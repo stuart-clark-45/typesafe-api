@@ -1,7 +1,7 @@
 import { clearDogDB, scoobyDoo } from './dog';
 import { startApp } from './example-express';
 import { DefaultReqOptions, GetDogEndpointDef, GetDogErrorType, HeaderTestReq, HeaderTestResp } from './example-routes';
-import { AxiosError } from 'axios';
+import { AxiosError, AxiosRequestConfig } from 'axios';
 import { ErrorHandlers, handleError } from '../src';
 import { RootApiClient } from './example-api-client';
 
@@ -17,6 +17,16 @@ const defaultHeaderTestResp: HeaderTestResp = {
   headerValue: defaultReqOptions.headers.myheader,
 };
 
+const getDogErrorHandlers: ErrorHandlers<GetDogEndpointDef> = {
+  404: jest.fn(),
+  500: jest.fn(),
+};
+
+const zeroContent: AxiosRequestConfig = { maxContentLength: 0 };
+
+const expectMaxContentSizeError = async (resp: Promise<unknown>) =>
+  expect(resp).rejects.toThrow(/maxContentLength size of 0 exceeded/);
+
 let baseUrl: string;
 let server: any;
 let rootApiClient: RootApiClient;
@@ -30,11 +40,6 @@ beforeAll(async () => {
   const apiParams = { baseUrl, defaultReqOptions };
   rootApiClient = new RootApiClient(apiParams);
 });
-
-const getDogErrorHandlers: ErrorHandlers<GetDogEndpointDef> = {
-  404: jest.fn(),
-  500: jest.fn(),
-};
 
 afterAll(async () => {
   clearDogDB();
@@ -63,6 +68,24 @@ it('Test Root API (headers and default params)', async () => {
 it('Test full response', async () => {
   const resp = await rootApiClient.headerTest({}, true);
   expect(resp.data).toStrictEqual(defaultHeaderTestResp);
+});
+
+it('Test default axios config', async () => {
+  const axiosTestClient = new RootApiClient({
+    baseUrl,
+    defaultAxiosConfig: zeroContent,
+    defaultReqOptions,
+  });
+  await expectMaxContentSizeError(axiosTestClient.headerTest({}));
+});
+
+it('Test request axios config', async () => {
+  const axiosTestClient = new RootApiClient({
+    baseUrl,
+    defaultReqOptions,
+  });
+  const resp = axiosTestClient.headerTest({}, false, zeroContent);
+  await expectMaxContentSizeError(resp);
 });
 
 it('Dog API', async () => {

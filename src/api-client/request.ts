@@ -27,8 +27,12 @@ export const replaceUrlParams = (path: string, params: Record<string, unknown>):
 };
 
 type RouteRequestCallable<T extends AbstractEndpointDef> = {
-  (options: T['clientReqOptions'], fullResponse: true): Promise<AxiosResponse<T['responseBody']>>;
-  (options: T['clientReqOptions'], fullResponse?: false): Promise<T['responseBody']>;
+  (options: T['clientReqOptions'], fullResponse: true, requestAxiosConfig?: AxiosRequestConfig): Promise<
+    AxiosResponse<T['responseBody']>
+  >;
+  (options: T['clientReqOptions'], fullResponse?: false, requestAxiosConfig?: AxiosRequestConfig): Promise<
+    T['responseBody']
+  >;
 };
 
 const getRequestOpts = <E extends AbstractEndpointDef, DefaultReqOpt extends ReqOptions>(
@@ -45,7 +49,8 @@ const callRoute = async <E extends AbstractEndpointDef>(
   apiClient: AbstractApiClient<E['defaultReqOptions']>,
   route: Route,
   options: ReqOptions,
-  fullResponse?: boolean
+  fullResponse?: boolean,
+  requestAxiosConfig?: AxiosRequestConfig
 ): Promise<AxiosResponse<E['responseBody']>> => {
   const { params, query, body, headers } = getRequestOpts(apiClient, options);
   const { method } = route;
@@ -56,12 +61,16 @@ const callRoute = async <E extends AbstractEndpointDef>(
 
   // Make the request
   const config: AxiosRequestConfig = {
+    validateStatus: (status) => status >= 200 && status < 300,
+    ...apiClient.getDefaultAxiosConfig(),
     method,
     url,
+    // Just in case this has slipped in as part of the default axios config
+    baseURL: undefined,
     params: query,
     data: body,
     headers,
-    validateStatus: (status) => status >= 200 && status < 300,
+    ...(requestAxiosConfig || {}),
   };
 
   const resp = await axios.request<E['responseBody']>(config);
@@ -74,8 +83,9 @@ export const createRouteRequest = <T extends AbstractEndpointDef>(
 ): RouteRequestCallable<T> => {
   return async (
     options: T['clientReqOptions'],
-    fullResponse?: boolean
+    fullResponse?: boolean,
+    requestAxiosConfig?: AxiosRequestConfig
   ): Promise<AxiosResponse<T['responseBody']> | T['responseBody']> => {
-    return callRoute<T>(apiClient, route, options, fullResponse);
+    return callRoute<T>(apiClient, route, options, fullResponse, requestAxiosConfig);
   };
 };
