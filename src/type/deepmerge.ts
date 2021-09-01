@@ -1,3 +1,5 @@
+// TODO once https://github.com/TehShrike/deepmerge/pull/211 is merged we shouldn't need this file anymore
+
 /**
  * Deep merge 2 types.
  */
