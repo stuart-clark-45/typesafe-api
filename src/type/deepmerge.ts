@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-types */
+
 // TODO once https://github.com/TehShrike/deepmerge/pull/211 is merged we shouldn't need this file anymore
 
 /**
