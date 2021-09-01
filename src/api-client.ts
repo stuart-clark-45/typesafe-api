@@ -1,13 +1,32 @@
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
+import { RequireExactlyOne } from 'type-fest';
 import { urlJoin } from 'url-join-ts';
 import { AbstractEndpointDef, ReqOptions, StandardEndpointDef } from './endpoint';
 import { Route } from './route';
+import deepMerge from 'deepmerge';
 
-export abstract class AbstractApiClient {
-  constructor(private baseUrl: string | null, private parent?: AbstractApiClient) {}
+export type ApiClientParams<DefaultReqOpt extends ReqOptions> = RequireExactlyOne<{
+  baseUrl: string;
+  parent: AbstractApiClient<DefaultReqOpt>;
+}> & { defaultReqOptions: DefaultReqOpt };
+
+export abstract class AbstractApiClient<T extends ReqOptions> {
+  constructor(private params: ApiClientParams<T>) {}
 
   public getBaseUrl(): string {
-    return this.parent?.getBaseUrl() || this.baseUrl;
+    const { parent, baseUrl } = this.params;
+    return parent?.getBaseUrl() || baseUrl;
+  }
+
+  public getDefaultReqOptions(): T {
+    return this.params.defaultReqOptions;
+  }
+
+  public getChildParams(): ApiClientParams<T> {
+    return {
+      parent: this,
+      defaultReqOptions: this.params.defaultReqOptions,
+    };
   }
 }
 
@@ -32,14 +51,26 @@ export const replaceUrlParams = (path: string, params: Record<string, unknown>):
   return path;
 };
 
-type RouteRequestCallable<T extends AbstractEndpointDef> = (options: T['requestOptions']) => Promise<T['responseBody']>;
+type RouteRequestCallable<T extends AbstractEndpointDef> = (
+  options: T['clientReqOptions']
+) => Promise<T['responseBody']>;
 
-const callRoute = async <T extends AbstractEndpointDef>(
-  apiClient: AbstractApiClient,
+const getRequestOpts = <E extends AbstractEndpointDef, DefaultReqOpt extends ReqOptions>(
+  apiClient: AbstractApiClient<DefaultReqOpt>,
+  reqOptions: E['clientReqOptions']
+) => {
+  const mergeOptions: deepMerge.Options = {
+    arrayMerge: (destinationArray: any[], sourceArray: any[]) => sourceArray,
+  };
+  return deepMerge(apiClient.getDefaultReqOptions(), reqOptions, mergeOptions);
+};
+
+const callRoute = async <E extends AbstractEndpointDef>(
+  apiClient: AbstractApiClient<E['defaultReqOptions']>,
   route: Route,
   options: ReqOptions
-): Promise<T['responseBody']> => {
-  const { params, query, body, headers } = options;
+): Promise<E['responseBody']> => {
+  const { params, query, body, headers } = getRequestOpts(apiClient, options);
   const { method } = route;
 
   // Build the url
@@ -55,15 +86,15 @@ const callRoute = async <T extends AbstractEndpointDef>(
     headers,
     validateStatus: (status) => status >= 200 && status < 300,
   };
-  const response = await axios.request<T['responseBody']>(config);
+  const response = await axios.request<E['responseBody']>(config);
   return response.data;
 };
 
 export const createRouteRequest = <T extends AbstractEndpointDef>(
-  apiClient: AbstractApiClient,
+  apiClient: AbstractApiClient<T['defaultReqOptions']>,
   route: Route
 ): RouteRequestCallable<T> => {
-  return async (options: T['requestOptions']): Promise<T['responseBody']> => {
+  return async (options: T['clientReqOptions']): Promise<T['responseBody']> => {
     return callRoute<T>(apiClient, route, options);
   };
 };
