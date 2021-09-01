@@ -16,7 +16,8 @@
     "lint": "eslint './src/**/*.ts'",
     "prepare": "npm run build",
     "preversion": "npm run lint && npm run build",
-    "test": "jest -i --coverage"
+    "test": "jest -i --coverage",
+    "docs": "embedme README.md"
   },
   "keywords": [
     "typesafe",
@@ -34,6 +35,7 @@
     "@typescript-eslint/eslint-plugin": "4.26.0",
     "@typescript-eslint/parser": "4.26.0",
     "bson-objectid": "^2.0.1",
+    "embedme": "^1.22.0",
     "eslint": "7.27.0",
     "eslint-config-prettier": "8.3.0",
     "eslint-plugin-prettier": "3.4.0",
