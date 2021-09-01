@@ -13,6 +13,10 @@ const defaultReqOptions: DefaultReqOptions = {
   },
 };
 
+const defaultHeaderTestResp: HeaderTestResp = {
+  headerValue: defaultReqOptions.headers.myheader,
+};
+
 let baseUrl: string;
 let server: any;
 let rootApiClient: RootApiClient;
@@ -42,15 +46,11 @@ it('Test Root API (headers and default params)', async () => {
     return await rootApiClient.headerTest(options);
   };
 
-  const expectedDefault: HeaderTestResp = {
-    headerValue: defaultReqOptions.headers.myheader,
-  };
-
   // Test with no options
-  expect(await hitEndpont({})).toStrictEqual(expectedDefault);
+  expect(await hitEndpont({})).toStrictEqual(defaultHeaderTestResp);
 
   // Test headers object but not key-values
-  expect(await hitEndpont({ headers: {} })).toStrictEqual(expectedDefault);
+  expect(await hitEndpont({ headers: {} })).toStrictEqual(defaultHeaderTestResp);
 
   // Test with custom value
   const customValue = 'custom-value';
@@ -58,6 +58,11 @@ it('Test Root API (headers and default params)', async () => {
     headerValue: customValue,
   };
   expect(await hitEndpont({ headers: { myheader: customValue } })).toStrictEqual(expectedCustom);
+});
+
+it('Test full response', async () => {
+  const resp = await rootApiClient.headerTest({}, true);
+  expect(resp.data).toStrictEqual(defaultHeaderTestResp);
 });
 
 it('Dog API', async () => {
