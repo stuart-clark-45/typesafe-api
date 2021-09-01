@@ -1,12 +1,16 @@
+
+/* eslint-disable @typescript-eslint/ban-types */
+// We need to use the {} type here or merging default and endpoint request options doesn't work
 export interface ReqOptions {
-  query?: Record<string, unknown>;
-  params?: Record<string, unknown>;
+  query?: {};
+  params?: {};
   body?: any;
   /**
    * keys should be lowercase
    */
-  headers?: Record<string, unknown>;
+  headers?: {};
 }
+/* eslint-enable @typescript-eslint/ban-types */
 
 export interface ErrorType<S extends number = 500> {
   status: S;
