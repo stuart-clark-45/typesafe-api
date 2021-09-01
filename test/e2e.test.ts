@@ -1,19 +1,30 @@
 import { clearDogDB, scoobyDoo } from './dog';
 import { startApp } from './example-express';
-import { GetDogEndpointDef, GetDogErrorType, HeaderTestResp } from './example-routes';
+import { DefaultReqOptions, GetDogEndpointDef, GetDogErrorType, HeaderTestReq, HeaderTestResp } from './example-routes';
 import { AxiosError } from 'axios';
 import { ErrorHandlers, handleError } from '../src';
 import { RootApiClient } from './example-api-client';
 
 export const OBJECT_ID_STRING = /^[a-f\d]{24}$/i;
 
+const defaultReqOptions: DefaultReqOptions = {
+  headers: {
+    myheader: 'default-header-value',
+  },
+};
+
 let baseUrl: string;
 let server: any;
+let rootApiClient: RootApiClient;
+
 beforeAll(async () => {
   const appStarted = await startApp();
   baseUrl = appStarted.baseUrl;
   server = appStarted.server;
   clearDogDB();
+
+  const apiParams = { baseUrl, defaultReqOptions };
+  rootApiClient = new RootApiClient(apiParams);
 });
 
 const getDogErrorHandlers: ErrorHandlers<GetDogEndpointDef> = {
@@ -26,21 +37,31 @@ afterAll(async () => {
   server.close();
 });
 
-it('Test API', async () => {
-  const rootApiClient = new RootApiClient(baseUrl);
-  const dogClient = rootApiClient.dog();
-
-  // Header test
-  const testHeaderValue = 'test-header-value';
-  const headerTestResp = await rootApiClient.headerTest({
-    headers: {
-      myheader: testHeaderValue,
-    },
-  });
-  const expected: HeaderTestResp = {
-    headerValue: testHeaderValue,
+it('Test Root API (headers and default params)', async () => {
+  const hitEndpont = async (options: HeaderTestReq) => {
+    return await rootApiClient.headerTest(options);
   };
-  expect(headerTestResp).toStrictEqual(expected);
+
+  const expectedDefault: HeaderTestResp = {
+    headerValue: defaultReqOptions.headers.myheader,
+  };
+
+  // Test with no options
+  expect(await hitEndpont({})).toStrictEqual(expectedDefault);
+
+  // Test headers object but not key-values
+  expect(await hitEndpont({ headers: {} })).toStrictEqual(expectedDefault);
+
+  // Test with custom value
+  const customValue = 'custom-value';
+  const expectedCustom: HeaderTestResp = {
+    headerValue: customValue,
+  };
+  expect(await hitEndpont({ headers: { myheader: customValue } })).toStrictEqual(expectedCustom);
+});
+
+it('Dog API', async () => {
+  const dogClient = rootApiClient.dog();
 
   // Create a dog
   const createResp = await dogClient.createDog({
