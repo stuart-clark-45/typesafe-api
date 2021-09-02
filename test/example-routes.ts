@@ -70,6 +70,9 @@ export interface HeaderTestResp extends ResOptions {
   body: {
     headerValue: string;
   };
+  headers: {
+    'test-header': string;
+  };
 }
 
 export type HeaderTestEndpointDef = EndpointDef<DefaultReqOptions, ReqOptions, HeaderTestResp>;

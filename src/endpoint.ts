@@ -13,15 +13,16 @@ export interface ReqOptions {
   headers?: {};
   axiosConfig?: AxiosRequestConfig;
 }
+
+export interface ResOptions {
+  body: any;
+  headers: {};
+}
 /* eslint-enable @typescript-eslint/ban-types */
 
 export interface ErrorType<S extends number = 500> {
   status: S;
   msg: string;
-}
-
-export interface ResOptions {
-  body: any;
 }
 
 export interface EndpointDef<
@@ -39,6 +40,8 @@ export interface EndpointDef<
 }
 
 export type ResponseBody<T extends AbstractEndpointDef> = T['responseOptions']['body'];
+
+export type ResponseHeaders<T extends AbstractEndpointDef> = T['responseOptions']['headers'];
 
 export type StandardEndpointDef = EndpointDef<any, any, any, ErrorType<any>>;
 

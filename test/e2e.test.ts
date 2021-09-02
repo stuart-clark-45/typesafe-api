@@ -74,6 +74,7 @@ it('Test Root API (headers and default params)', async () => {
 it('Test full response', async () => {
   const resp = await rootApiClient.headerTest({}, true);
   expect(resp.data).toStrictEqual(defaultHeaderTestResp);
+  expect(resp.headers['test-header']).toBe(defaultHeaderTestResp.headerValue);
 });
 
 it('Test default axios config', async () => {

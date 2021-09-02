@@ -1,5 +1,10 @@
-import { Controller, parseHeaders, sendError, TRequest, TResponse } from '../src/express';
-import { CreateDogEndpointDef, GetDogEndpointDef, GetDogsEndpointDef, HeaderTestEndpointDef } from './example-routes';
+import { Controller, sendError, TRequest, TResponse } from '../src/express';
+import {
+  CreateDogEndpointDef,
+  GetDogEndpointDef,
+  GetDogsEndpointDef,
+  HeaderTestEndpointDef
+} from './example-routes';
 import { dogDB, DogWithId } from './dog';
 import ObjectID from 'bson-objectid';
 
@@ -42,6 +47,7 @@ export const headerTestController: Controller<HeaderTestEndpointDef> = (
   req: TRequest<HeaderTestEndpointDef>,
   res: TResponse<HeaderTestEndpointDef>
 ) => {
-  const { myheader } = parseHeaders(req);
-  res.send({ headerValue: myheader });
+  const value = req.get('myheader');
+  res.set('test-header', value);
+  res.send({ headerValue: value });
 };
