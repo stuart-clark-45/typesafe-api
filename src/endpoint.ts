@@ -1,4 +1,5 @@
 import { Deepmerge } from './type/deepmerge';
+import { AxiosRequestConfig } from 'axios';
 
 /* eslint-disable @typescript-eslint/ban-types */
 // We need to use the {} type here or merging default and endpoint request options doesn't work
@@ -10,6 +11,7 @@ export interface ReqOptions {
    * keys should be lowercase
    */
   headers?: {};
+  axiosConfig?: AxiosRequestConfig;
 }
 /* eslint-enable @typescript-eslint/ban-types */
 

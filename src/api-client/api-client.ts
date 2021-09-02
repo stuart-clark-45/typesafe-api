@@ -7,7 +7,6 @@ export type ApiClientParams<DefaultReqOpt extends ReqOptions> = RequireExactlyOn
   parent: AbstractApiClient<DefaultReqOpt>;
 }> & {
   defaultReqOptions: DefaultReqOpt;
-  defaultAxiosConfig?: AxiosRequestConfig;
 };
 
 export abstract class AbstractApiClient<T extends ReqOptions> {
@@ -23,14 +22,13 @@ export abstract class AbstractApiClient<T extends ReqOptions> {
   }
 
   public getDefaultAxiosConfig(): AxiosRequestConfig {
-    return this.params.defaultAxiosConfig ?? {};
+    return this.params.defaultReqOptions.axiosConfig ?? {};
   }
 
   public getChildParams(): ApiClientParams<T> {
     return {
       parent: this,
       defaultReqOptions: this.params.defaultReqOptions,
-      defaultAxiosConfig: this.params.defaultAxiosConfig,
     };
   }
 }

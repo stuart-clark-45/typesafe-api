@@ -73,8 +73,10 @@ it('Test full response', async () => {
 it('Test default axios config', async () => {
   const axiosTestClient = new RootApiClient({
     baseUrl,
-    defaultAxiosConfig: zeroContent,
-    defaultReqOptions,
+    defaultReqOptions: {
+      ...defaultReqOptions,
+      axiosConfig: zeroContent,
+    },
   });
   await expectMaxContentSizeError(axiosTestClient.headerTest({}));
 });
@@ -84,7 +86,7 @@ it('Test request axios config', async () => {
     baseUrl,
     defaultReqOptions,
   });
-  const resp = axiosTestClient.headerTest({}, false, zeroContent);
+  const resp = axiosTestClient.headerTest({ axiosConfig: zeroContent });
   await expectMaxContentSizeError(resp);
 });
 

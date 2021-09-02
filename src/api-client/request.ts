@@ -48,11 +48,10 @@ const getRequestOpts = <E extends AbstractEndpointDef, DefaultReqOpt extends Req
 const callRoute = async <E extends AbstractEndpointDef>(
   apiClient: AbstractApiClient<E['defaultReqOptions']>,
   route: Route,
-  options: ReqOptions,
-  fullResponse?: boolean,
-  requestAxiosConfig?: AxiosRequestConfig
+  reqOptions: ReqOptions,
+  fullResponse?: boolean
 ): Promise<AxiosResponse<E['responseBody']>> => {
-  const { params, query, body, headers } = getRequestOpts(apiClient, options);
+  const { params, query, body, headers } = getRequestOpts(apiClient, reqOptions);
   const { method } = route;
 
   // Build the url
@@ -70,7 +69,7 @@ const callRoute = async <E extends AbstractEndpointDef>(
     params: query,
     data: body,
     headers,
-    ...(requestAxiosConfig || {}),
+    ...(reqOptions.axiosConfig || {}),
   };
 
   const resp = await axios.request<E['responseBody']>(config);
@@ -83,9 +82,8 @@ export const createRouteRequest = <T extends AbstractEndpointDef>(
 ): RouteRequestCallable<T> => {
   return async (
     options: T['clientReqOptions'],
-    fullResponse?: boolean,
-    requestAxiosConfig?: AxiosRequestConfig
+    fullResponse?: boolean
   ): Promise<AxiosResponse<T['responseBody']> | T['responseBody']> => {
-    return callRoute<T>(apiClient, route, options, fullResponse, requestAxiosConfig);
+    return callRoute<T>(apiClient, route, options, fullResponse);
   };
 };

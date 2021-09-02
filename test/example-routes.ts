@@ -1,7 +1,7 @@
 import { EndpointDef, ErrorType, ReqOptions, Route } from '../src';
 import { Dog, DogWithId } from './dog';
 
-export interface DefaultReqOptions {
+export interface DefaultReqOptions extends ReqOptions {
   headers: {
     myheader: string;
   };
