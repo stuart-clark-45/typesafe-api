@@ -1,10 +1,18 @@
-import { EndpointDef, ErrorType, ReqOptions, Route } from '../src';
+import { EndpointDef, ErrorType, ReqOptions, ResOptions, Route } from '../src';
 import { Dog, DogWithId } from './dog';
 
 export interface DefaultReqOptions extends ReqOptions {
   headers: {
     myheader: string;
   };
+}
+
+export interface DogWithIdRes extends ResOptions {
+  body: DogWithId;
+}
+
+export interface DogsWithIdRes extends ResOptions {
+  body: DogWithId[];
 }
 
 // Post dog route
@@ -17,7 +25,7 @@ export const postDogRoute: Route = {
 export interface CreateDogReq extends ReqOptions {
   body: Dog;
 }
-export type CreateDogEndpointDef = EndpointDef<DefaultReqOptions, CreateDogReq, DogWithId>;
+export type CreateDogEndpointDef = EndpointDef<DefaultReqOptions, CreateDogReq, DogWithIdRes>;
 
 // Get dogs route
 export const getDogsRoute: Route = {
@@ -26,7 +34,7 @@ export const getDogsRoute: Route = {
 };
 
 // Get dogs endpoint
-export type GetDogsEndpointDef = EndpointDef<DefaultReqOptions, ReqOptions, DogWithId[]>;
+export type GetDogsEndpointDef = EndpointDef<DefaultReqOptions, ReqOptions, DogsWithIdRes>;
 
 // Get dog route
 export const getDogRoute: Route = {
@@ -43,7 +51,7 @@ export interface GetDogReq extends ReqOptions {
 
 export type GetDogErrorType = ErrorType<500 | 404>;
 
-export type GetDogEndpointDef = EndpointDef<DefaultReqOptions, GetDogReq, DogWithId, GetDogErrorType>;
+export type GetDogEndpointDef = EndpointDef<DefaultReqOptions, GetDogReq, DogWithIdRes, GetDogErrorType>;
 
 // Header test endpoint
 export const headerTestRoute: Route = {
@@ -58,8 +66,10 @@ export interface HeaderTestReq extends ReqOptions {
   };
 }
 
-export interface HeaderTestResp {
-  headerValue: string;
+export interface HeaderTestResp extends ResOptions {
+  body: {
+    headerValue: string;
+  };
 }
 
 export type HeaderTestEndpointDef = EndpointDef<DefaultReqOptions, ReqOptions, HeaderTestResp>;

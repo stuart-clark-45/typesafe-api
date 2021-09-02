@@ -1,8 +1,14 @@
 import { clearDogDB, scoobyDoo } from './dog';
 import { startApp } from './example-express';
-import { DefaultReqOptions, GetDogEndpointDef, GetDogErrorType, HeaderTestReq, HeaderTestResp } from './example-routes';
+import {
+  DefaultReqOptions,
+  GetDogEndpointDef,
+  GetDogErrorType,
+  HeaderTestEndpointDef,
+  HeaderTestReq,
+} from './example-routes';
 import { AxiosError, AxiosRequestConfig } from 'axios';
-import { ErrorHandlers, handleError } from '../src';
+import { ErrorHandlers, handleError, ResponseBody } from '../src';
 import { RootApiClient } from './example-api-client';
 
 export const OBJECT_ID_STRING = /^[a-f\d]{24}$/i;
@@ -13,7 +19,7 @@ const defaultReqOptions: DefaultReqOptions = {
   },
 };
 
-const defaultHeaderTestResp: HeaderTestResp = {
+const defaultHeaderTestResp: ResponseBody<HeaderTestEndpointDef> = {
   headerValue: defaultReqOptions.headers.myheader,
 };
 
@@ -59,7 +65,7 @@ it('Test Root API (headers and default params)', async () => {
 
   // Test with custom value
   const customValue = 'custom-value';
-  const expectedCustom: HeaderTestResp = {
+  const expectedCustom: ResponseBody<HeaderTestEndpointDef> = {
     headerValue: customValue,
   };
   expect(await hitEndpont({ headers: { myheader: customValue } })).toStrictEqual(expectedCustom);

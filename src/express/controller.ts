@@ -1,14 +1,14 @@
 import { NextFunction, Request, Response } from 'express';
-import { AbstractEndpointDef, StandardEndpointDef } from '../endpoint';
+import { AbstractEndpointDef, ResponseBody, StandardEndpointDef } from '../endpoint';
 
 export type TRequest<T extends AbstractEndpointDef> = Request<
   T['requestOptions']['params'],
-  T['responseBody'],
+  ResponseBody<T>,
   T['requestOptions']['body'],
   T['requestOptions']['query']
 >;
 
-export type TResponse<T extends AbstractEndpointDef> = Response<T['responseBody'] | T['errorType']>;
+export type TResponse<T extends AbstractEndpointDef> = Response<ResponseBody<T> | T['errorType']>;
 
 export type Controller<T extends AbstractEndpointDef> = (
   req: TRequest<T>,

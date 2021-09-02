@@ -20,14 +20,25 @@ export interface ErrorType<S extends number = 500> {
   msg: string;
 }
 
-export interface EndpointDef<DefaultReqOpt extends ReqOptions, ReqOpt extends ReqOptions, RespT, E = ErrorType> {
+export interface ResOptions {
+  body: any;
+}
+
+export interface EndpointDef<
+  DefaultReqOpt extends ReqOptions,
+  ReqOpt extends ReqOptions,
+  ResOpt extends ResOptions,
+  E = ErrorType
+> {
   requestOptions: Deepmerge<DefaultReqOpt, ReqOpt>;
   defaultReqOptions: DefaultReqOpt;
   // These are the parameters that will be required by the API client
   clientReqOptions: ReqOpt;
-  responseBody: RespT;
+  responseOptions: ResOpt;
   errorType: E;
 }
+
+export type ResponseBody<T extends AbstractEndpointDef> = T['responseOptions']['body'];
 
 export type StandardEndpointDef = EndpointDef<any, any, any, ErrorType<any>>;
 

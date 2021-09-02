@@ -1,6 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { urlJoin } from 'url-join-ts';
-import { AbstractEndpointDef, ReqOptions } from '../endpoint';
+import { AbstractEndpointDef, ReqOptions, ResponseBody } from '../endpoint';
 import { Route } from '../route';
 import deepMerge from 'deepmerge';
 import { AbstractApiClient } from './api-client';
@@ -28,10 +28,10 @@ export const replaceUrlParams = (path: string, params: Record<string, unknown>):
 
 type RouteRequestCallable<T extends AbstractEndpointDef> = {
   (options: T['clientReqOptions'], fullResponse: true, requestAxiosConfig?: AxiosRequestConfig): Promise<
-    AxiosResponse<T['responseBody']>
+    AxiosResponse<ResponseBody<T>>
   >;
   (options: T['clientReqOptions'], fullResponse?: false, requestAxiosConfig?: AxiosRequestConfig): Promise<
-    T['responseBody']
+    ResponseBody<T>
   >;
 };
 
@@ -50,7 +50,7 @@ const callRoute = async <E extends AbstractEndpointDef>(
   route: Route,
   reqOptions: ReqOptions,
   fullResponse?: boolean
-): Promise<AxiosResponse<E['responseBody']>> => {
+): Promise<AxiosResponse<ResponseBody<E>>> => {
   const { params, query, body, headers } = getRequestOpts(apiClient, reqOptions);
   const { method } = route;
 
@@ -72,7 +72,7 @@ const callRoute = async <E extends AbstractEndpointDef>(
     ...(reqOptions.axiosConfig || {}),
   };
 
-  const resp = await axios.request<E['responseBody']>(config);
+  const resp = await axios.request<ResponseBody<E>>(config);
   return fullResponse ? resp : resp.data;
 };
 
@@ -83,7 +83,7 @@ export const createRouteRequest = <T extends AbstractEndpointDef>(
   return async (
     options: T['clientReqOptions'],
     fullResponse?: boolean
-  ): Promise<AxiosResponse<T['responseBody']> | T['responseBody']> => {
+  ): Promise<AxiosResponse<ResponseBody<T>> | ResponseBody<T>> => {
     return callRoute<T>(apiClient, route, options, fullResponse);
   };
 };
