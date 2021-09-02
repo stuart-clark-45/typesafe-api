@@ -5,7 +5,7 @@ import { Route } from '../route';
 import deepMerge from 'deepmerge';
 import { AbstractApiClient } from './api-client';
 
-interface TAxiosResponse<T extends AbstractEndpointDef> extends AxiosResponse<ResponseBody<T>> {
+export interface TAxiosResponse<T extends AbstractEndpointDef> extends AxiosResponse<ResponseBody<T>> {
   headers: ResponseHeaders<T>;
 }
 
