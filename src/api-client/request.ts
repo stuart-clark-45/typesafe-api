@@ -34,7 +34,10 @@ type RouteRequestCallable<T extends AbstractEndpointDef> = {
   (options: T['clientReqOptions'], fullResponse: true, requestAxiosConfig?: AxiosRequestConfig): Promise<
     TAxiosResponse<T>
   >;
-  (options: T['clientReqOptions'], fullResponse?: false, requestAxiosConfig?: AxiosRequestConfig): Promise<
+  (options: T['clientReqOptions'], fullResponse: false, requestAxiosConfig?: AxiosRequestConfig): Promise<
+    ResponseBody<T>
+  >;
+  (options: T['clientReqOptions'], fullResponse: undefined, requestAxiosConfig?: AxiosRequestConfig): Promise<
     ResponseBody<T>
   >;
 };
