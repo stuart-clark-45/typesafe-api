@@ -361,7 +361,7 @@ export function App() {
 
   // Set up error handlers in case the API call fails
   // (the compiler will tell you if you are missing any error codes)
-  const callHelloWorldError: ErrorHandlers<HelloWorldEndpointDef> = {
+  const errorHandlers: ErrorHandlers<HelloWorldEndpointDef> = {
     500: (err) => {
       alert('Something went wrong please check console logs');
       console.error(err);
@@ -379,10 +379,10 @@ export function App() {
   // Define onClick function that calls the endpoint and handles any errors
   const onClick = async () => {
     try {
-      const { msg } = await helloApi.helloWorld(name);
-      setResponseText(msg);
+      const { data } = await helloApi.helloWorld(name);
+      setResponseText(data.msg);
     } catch (err) {
-      handleError(err as any, callHelloWorldError);
+      handleError(err as any, errorHandlers);
     }
   };
 
