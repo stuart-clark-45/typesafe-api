@@ -13,21 +13,24 @@ This makes for speedy integration and oh so easy maintenance, you'll never miss 
 
 #### Recommended Repo Architecture
 
-The following dependency diagram show the suggested repo architecture you should use to 
+The following dependency diagram show the suggested project architecture you should use to 
 define your API. 
 
 ![alt text](docs/images/repo-archetecture.png "Repo architecture diagram")
 
-The recommended architecture is to define your API spec in a separate repo. Create an npm module for 
-it then use it as dependency in both your backend project and any consuming services / frontends for the API.
+This can be implemented using either:
 
-* N.B. use [npm link](https://docs.npmjs.com/cli/v7/commands/npm-link) to experiment with changes to 
-your API spec before your publish to npm it will save you tones of time!
+Polyrepo
 
-You could conceivably define the API spec from within the the backend and export the relevant 
-objects and interfaces however this would probably make life more difficult as you would end up with 
-multiple builds in the same repo (so as to avoid importing the whole project backend when you want 
-to consume the api) etc.
+* Publish your API spec as a npm module then import it into backend and consuming services. Use 
+[npm link](https://docs.npmjs.com/cli/v7/commands/npm-link) during development it will save you tones of time!
+
+
+Monorepo
+
+* [NX](https://nx.dev/) is a great way to implement this and solves a lot of the issues
+  associated with monorepo. This works really well with `typesafe-api` as it saves quite a bit of dependency wrangling but obviously 
+it's not for everyone. 
 
 ## Getting started
 
@@ -192,7 +195,8 @@ export * from 'typesafe-api/dist/api-client'
 
 ```
  
-Now publish your spec as an npm module. In this example the package published is called `typesafe-api-demo-api-spec` 
+Now publish your spec as an npm module. In this example we are using an [NX](https://nx.dev/) monorepo
+so the spec is imported from `@nx-typesafe-api-example/api-spec`.
 
 ### Backend
 
