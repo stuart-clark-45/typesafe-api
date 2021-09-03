@@ -1,11 +1,9 @@
-import { RequireExactlyOne } from 'type-fest';
 import { ReqOptions } from '../endpoint';
 import { AxiosRequestConfig } from 'axios';
 
-export type ApiClientParams<DefaultReqOpt extends ReqOptions> = RequireExactlyOne<{
-  baseUrl: string;
-  parent: AbstractApiClient<DefaultReqOpt>;
-}> & {
+export type ApiClientParams<DefaultReqOpt extends ReqOptions> = {
+  baseUrl?: string;
+  parent?: AbstractApiClient<DefaultReqOpt>;
   defaultReqOptions: DefaultReqOpt;
 };
 
