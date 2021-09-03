@@ -1,5 +1,6 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction } from 'express';
 import { AbstractEndpointDef, ResponseBody, ResponseHeaders, StandardEndpointDef } from '../endpoint';
+import { Request, Response } from 'express-serve-static-core';
 
 export interface TRequest<T extends AbstractEndpointDef>
   extends Request<
