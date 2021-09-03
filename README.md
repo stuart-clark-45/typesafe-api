@@ -61,9 +61,9 @@ When defining an API endpoint there are two main concepts we need to think about
 First let's define some useful interfaces for our API
 
 ```ts
-// ../typesafe-api-example/api-spec/src/api.ts
+// ../nx-typesafe-api-example/libs/api-spec/src/api.ts
 
-import {EndpointDef, ErrorType, ReqOptions} from 'typesafe-api';
+import {EndpointDef, ErrorType, ReqOptions, ResOptions} from 'typesafe-api';
 
 // These are the options that will be sent with every request to our API. In this example
 // we are going to implement some dummy authentication for our API using the
@@ -85,18 +85,18 @@ export type DefaultErrorCodes = 500 | 403;
 // and {@code DefaultErrorType} to every endpoint we create
 export interface ExampleApiEndpoint<
   ReqOpt extends ReqOptions,
-  RespT,
+  RespOpt extends ResOptions,
   E = ErrorType<DefaultErrorCodes>,
-  > extends EndpointDef<DefaultReqOpts, ReqOpt, RespT, E> {}
+  > extends EndpointDef<DefaultReqOpts, ReqOpt, RespOpt, E> {}
 
 ```
 
 Now let's define an endpoint...
  
 ```ts
-// ../typesafe-api-example/api-spec/src/routes/hello-world.ts
+// ../nx-typesafe-api-example/libs/api-spec/src/routes/hello-world.ts
 
-import {ErrorType, ReqOptions, Route} from 'typesafe-api';
+import {ErrorType, ReqOptions, ResOptions, Route} from 'typesafe-api';
 import {DefaultErrorCodes, ExampleApiEndpoint} from '../api';
 
 
@@ -114,9 +114,14 @@ export interface HelloWorldReq extends ReqOptions {
 }
 
 // Define the response type we wil receive for the request
-export interface HelloWorldResp {
-  msg: string,
-  date: Date,
+export interface HelloWorldResp extends ResOptions {
+  body: {
+    msg: string;
+    date: Date;
+  }
+  headers: {
+    example: string;
+  }
 }
 
 // Define any error that may be thrown by the endpoint, the default is just `500`
@@ -124,19 +129,24 @@ export type HelloWorldErrors = ErrorType<DefaultErrorCodes|400>
 
 // Create the endpoint definition this type encapsulates the full endpoint spec
 export type HelloWorldEndpointDef = ExampleApiEndpoint<HelloWorldReq, HelloWorldResp, HelloWorldErrors>
+
 ```
 
 Now we have our route and endpoint defined we can very easily create an `ApiClient` for it.
 
 ```ts
-// ../typesafe-api-example/api-spec/src/api-client.ts
+// ../nx-typesafe-api-example/libs/api-spec/src/api-client.ts
 
 import {AbstractApiClient, createRouteRequest} from 'typesafe-api';
 import {helloWoldRoute, HelloWorldEndpointDef} from './routes';
 import {DefaultReqOpts} from './api';
 
+// Create custom class that we will use as the super class for all our client classes
+// that support {@link DefaultReqOpts}
+class CustomApiClient extends AbstractApiClient<DefaultReqOpts> {}
+
 // Create a client for our endpoint
-class HelloApiClient extends AbstractApiClient<DefaultReqOpts> {
+class HelloApiClient extends CustomApiClient {
 
   // Use createRouteRequest(..) to create a method to execute your request
   private _helloWorld = createRouteRequest<HelloWorldEndpointDef>(this, helloWoldRoute);
@@ -147,7 +157,22 @@ class HelloApiClient extends AbstractApiClient<DefaultReqOpts> {
 }
 
 // Depending how many endpoints you have you may want to start nesting your API clients like this
-export class RootApiClient extends AbstractApiClient<DefaultReqOpts> {
+export class RootApiClient extends CustomApiClient {
+
+  // You can also add a custom constructor to abstract away the details of your
+  // default request options
+  constructor(baseUrl: string, apiKey: string) {
+    super({
+      baseUrl,
+      defaultReqOptions: {
+        headers: {
+          authorization: apiKey
+        }
+      }
+    });
+  }
+
+  // Here we add the {@link HelloApiClient} as a child of {@link RootApiClient}
   public helloApi = (): HelloApiClient => new HelloApiClient(this.getChildParams());
 }
 
@@ -157,7 +182,7 @@ Great that's our API spec all sorted. Now all that remains make sure __everythin
 your entry point for your module e.g.
 
 ```ts
-// ../typesafe-api-example/api-spec/src/index.ts
+// ../nx-typesafe-api-example/libs/api-spec/src/index.ts
 
 export * from './routes';
 export * from './api-client';
@@ -181,10 +206,10 @@ Contributions very welcome if you find a way to fully integrate with any other s
 So assuming you are using `express` we want to start out by creating a `Controller` to handle our requests...
 
 ```ts
-// ../typesafe-api-example/backend/src/hello-world.ts
+// ../nx-typesafe-api-example/apps/backend/src/app/hello-world.ts
 
 import {Controller, sendError, TRequest, TResponse} from 'typesafe-api';
-import {HelloWorldEndpointDef} from 'typesafe-api-demo-api-spec';
+import {HelloWorldEndpointDef} from '@nx-typesafe-api-example/api-spec';
 
 
 export const helloWorldController: Controller<HelloWorldEndpointDef> = (
@@ -224,23 +249,21 @@ Creating middleware for our app is easy too as long as it relies on our default 
 Here's a simple example...
 
 ```ts
-// ../typesafe-api-example/backend/src/authorize.ts
+// ../nx-typesafe-api-example/apps/backend/src/app/authorize.ts
 
 import {NextFunction, RequestHandler} from 'express';
-import {ExampleApiEndpoint} from 'typesafe-api-demo-api-spec';
-import {parseHeaders, ReqOptions, sendError, TRequest, TResponse} from 'typesafe-api';
+import {ExampleApiEndpoint} from '@nx-typesafe-api-example/api-spec';
+import {ReqOptions, ResOptions, sendError, TRequest, TResponse} from 'typesafe-api';
 
 // Create a type that can be used to represent any endpoint in our API
-type AnyEndpointDef = ExampleApiEndpoint<ReqOptions, unknown>
+type AnyEndpointDef = ExampleApiEndpoint<ReqOptions, ResOptions>
 
 const handler: RequestHandler = (req: TRequest<AnyEndpointDef>, res: TResponse<AnyEndpointDef>, next: NextFunction) => {
 
-  // Use parseHeaders to get headers in a typesafe way
-  const {authorization} = parseHeaders(req);
-
+  // Use {@code req.get(..)} to get headers in a typesafe way
   // Naive implementation of authentication
   // DONT TRY THIS AT HOME
-  if (authorization === "my-api-key") {
+  if (req.get('authorization') === "my-api-key") {
     return next()
   }
 
@@ -266,21 +289,21 @@ routes are correct.
 Here is a very simple express app using our newly created `Controller`
 
 ```ts
-// ../typesafe-api-example/backend/src/index.ts
+// ../nx-typesafe-api-example/apps/backend/src/main.ts
 
-import express, {RequestHandler} from 'express';
-import {addRoute, ExpressRoute} from 'typesafe-api';
-import {helloWorldController} from './hello-world';
-import {helloWoldRoute, HelloWorldEndpointDef} from 'typesafe-api-demo-api-spec';
+import express, { RequestHandler } from 'express';
+import { addRoute, ExpressRoute } from 'typesafe-api';
+import { helloWorldController } from './app/hello-world';
+import {
+  helloWoldRoute,
+  HelloWorldEndpointDef,
+} from '@nx-typesafe-api-example/api-spec';
 import cors from 'cors';
-import {authorize} from './authorize';
+import { authorize } from './app/authorize';
 
 const app = express();
 
-app.use(
-  cors(),
-  express.json(),
-);
+app.use(cors(), express.json());
 
 // Define the middleware we want for the route
 const middleware: RequestHandler[] = [authorize()];
@@ -289,7 +312,7 @@ const middleware: RequestHandler[] = [authorize()];
 const eHelloWorldRoute: ExpressRoute<HelloWorldEndpointDef> = {
   ...helloWoldRoute,
   middleware,
-  controller: helloWorldController
+  controller: helloWorldController,
 };
 
 // Add the route to the express app
@@ -311,37 +334,26 @@ react app. However, the steps are very similar for any backend systems you want 
 One you have your API spec installed you can define a component similar to this
 
 ```tsx
-// ../typesafe-api-example/frontend/src/App.tsx
+// ../nx-typesafe-api-example/apps/frontend/src/app/app.tsx
 
-import React, {useState} from 'react';
-import './App.css';
-import {ErrorHandlers, handleError} from 'typesafe-api';
+import React, { useState } from 'react';
 import {
-  ApiClientParams,
-  DefaultReqOpts,
+  ErrorHandlers,
+  handleError,
   HelloWorldEndpointDef,
   RootApiClient
-} from 'typesafe-api-demo-api-spec';
+} from '@nx-typesafe-api-example/api-spec';
+import { Box, Button, CardHeader, Container, TextField, Typography } from '@material-ui/core';
 
-// Used to get an instance of the api client
-const getApi = (apiKey: string) => {
-  const params: ApiClientParams<DefaultReqOpts> = {
-    defaultReqOptions: {
-      headers: {
-        authorization: apiKey
-      }
-    },
-    baseUrl: "http://localhost:7809",
-  };
-  return new RootApiClient(params).helloApi();
-};
+const baseUrl = 'http://localhost:7809';
 
-function App() {
-  const [name, setName] = useState("");
-  const [apiKey, setApiKey] = useState("");
-  const [responseText, setResponseText] = useState("");
+export function App() {
+  const [name, setName] = useState('');
+  const [apiKey, setApiKey] = useState('');
+  const [responseText, setResponseText] = useState('');
 
-  const helloApi = getApi(apiKey);
+  // Init the API client
+  const helloApi = new RootApiClient(baseUrl, apiKey).helloApi();
 
   // Set up error handlers in case the API call fails
   // (the compiler will tell you if you are missing any error codes)
@@ -356,39 +368,51 @@ function App() {
       if (!response) {
         throw err;
       }
-      setResponseText(response.data.msg)
-    }
+      setResponseText(response.data.msg);
+    },
   };
 
   // Define onClick function that calls the endpoint and handles any errors
   const onClick = async () => {
     try {
-      const {msg} = await helloApi.helloWorld(name);
+      const { msg } = await helloApi.helloWorld(name);
       setResponseText(msg);
     } catch (err) {
       handleError(err as any, callHelloWorldError);
     }
   };
 
+  const nameLabel = 'Enter your name';
+  const apiKeyLabel = 'Enter your API key (it\'s "my-api-key")';
+  const margin = 5;
   return (
-    <div className="App">
-      <header className="App-header">
-        <p>
-          Enter your name
-        </p>
-        <input value={name} onChange={(e) => setName(e.target.value)}/>
-        <p>
-          Enter your API key (it's "my-api-key")
-        </p>
-        <input value={apiKey} onChange={(e) => setApiKey(e.target.value)}/>
-        <p>
-          <button onClick={() => onClick()} >Say hi!</button>
-        </p>
-        <p>
-          {responseText}
-        </p>
-      </header>
-    </div>
+    <Container style={{ width: '50%' }}>
+      <CardHeader
+        title="frontend using typesafe-api"
+        variant="contained"
+        style={{ textAlign: 'center' }}
+      />
+      <form noValidate autoComplete="off centre">
+        <TextField
+          label={nameLabel}
+          fullWidth
+          onChange={(e) => setName(e.target.value)}
+        />
+        <TextField
+          label={apiKeyLabel}
+          fullWidth
+          onChange={(e) => setApiKey(e.target.value)}
+        />
+      </form>
+      <Typography align="center">
+        <Box m={margin}>
+          <Button variant="contained" color="primary" onClick={onClick}>
+            Say hi
+          </Button>
+        </Box>
+        <Box m={margin}>{responseText}</Box>
+      </Typography>
+    </Container>
   );
 }
 
