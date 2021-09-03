@@ -30,18 +30,6 @@ export const replaceUrlParams = (path: string, params: Record<string, unknown>):
   return path;
 };
 
-type RouteRequestCallable<T extends AbstractEndpointDef> = {
-  (options: T['clientReqOptions'], fullResponse: true, requestAxiosConfig?: AxiosRequestConfig): Promise<
-    TAxiosResponse<T>
-  >;
-  (options: T['clientReqOptions'], fullResponse: false, requestAxiosConfig?: AxiosRequestConfig): Promise<
-    ResponseBody<T>
-  >;
-  (options: T['clientReqOptions'], fullResponse: undefined, requestAxiosConfig?: AxiosRequestConfig): Promise<
-    ResponseBody<T>
-  >;
-};
-
 const getRequestOpts = <E extends AbstractEndpointDef, DefaultReqOpt extends ReqOptions>(
   apiClient: AbstractApiClient<DefaultReqOpt>,
   reqOptions: E['clientReqOptions']
@@ -55,9 +43,8 @@ const getRequestOpts = <E extends AbstractEndpointDef, DefaultReqOpt extends Req
 const callRoute = async <E extends AbstractEndpointDef>(
   apiClient: AbstractApiClient<E['defaultReqOptions']>,
   route: Route,
-  reqOptions: ReqOptions,
-  fullResponse?: boolean
-): Promise<TAxiosResponse<E> | ResponseBody<E>> => {
+  reqOptions: ReqOptions
+): Promise<TAxiosResponse<E>> => {
   const { params, query, body, headers } = getRequestOpts(apiClient, reqOptions);
   const { method } = route;
 
@@ -79,18 +66,18 @@ const callRoute = async <E extends AbstractEndpointDef>(
     ...(reqOptions.axiosConfig || {}),
   };
 
-  const resp = await axios.request<ResponseBody<E>>(config);
-  return fullResponse ? resp : resp.data;
+  return axios.request(config);
 };
+
+type RouteRequestCallable<T extends AbstractEndpointDef> = (
+  options: T['clientReqOptions']
+) => Promise<TAxiosResponse<T>>;
 
 export const createRouteRequest = <T extends AbstractEndpointDef>(
   apiClient: AbstractApiClient<T['defaultReqOptions']>,
   route: Route
 ): RouteRequestCallable<T> => {
-  return async (
-    options: T['clientReqOptions'],
-    fullResponse?: boolean
-  ): Promise<TAxiosResponse<T> | ResponseBody<T>> => {
-    return callRoute<T>(apiClient, route, options, fullResponse);
+  return async (options: T['clientReqOptions']): Promise<TAxiosResponse<T>> => {
+    return callRoute<T>(apiClient, route, options);
   };
 };

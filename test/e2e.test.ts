@@ -54,7 +54,8 @@ afterAll(async () => {
 
 it('Test Root API (headers and default params)', async () => {
   const hitEndpont = async (options: HeaderTestReq) => {
-    return await rootApiClient.headerTest(options);
+    const resp = await rootApiClient.headerTest(options);
+    return resp.data;
   };
 
   // Test with no options
@@ -71,8 +72,8 @@ it('Test Root API (headers and default params)', async () => {
   expect(await hitEndpont({ headers: { myheader: customValue } })).toStrictEqual(expectedCustom);
 });
 
-it('Test full response', async () => {
-  const resp = await rootApiClient.headerTest({}, true);
+it('Test response headers', async () => {
+  const resp = await rootApiClient.headerTest({});
   expect(resp.data).toStrictEqual(defaultHeaderTestResp);
   expect(resp.headers['test-header']).toBe(defaultHeaderTestResp.headerValue);
 });
@@ -104,13 +105,14 @@ it('Dog API', async () => {
   const createResp = await dogClient.createDog({
     body: scoobyDoo,
   });
-  const { _id } = createResp;
+  const respBody = createResp.data;
+  const { _id } = respBody;
   expect(_id).toMatch(OBJECT_ID_STRING);
   const dogWithId = {
     ...scoobyDoo,
     _id,
   };
-  expect(createResp).toStrictEqual(dogWithId);
+  expect(respBody).toStrictEqual(dogWithId);
 
   // Try to get the same dog
   const getOneResp = await dogClient.getDog({
@@ -118,11 +120,11 @@ it('Dog API', async () => {
       _id,
     },
   });
-  expect(getOneResp).toStrictEqual(dogWithId);
+  expect(getOneResp.data).toStrictEqual(dogWithId);
 
   // Get all the dogs
   const getAllResp = await dogClient.getDogs({});
-  expect(getAllResp).toStrictEqual([dogWithId]);
+  expect(getAllResp.data).toStrictEqual([dogWithId]);
 
   // Try to get a dog that doesn't exist
   const fakeId = 'not-a-real-dog';
