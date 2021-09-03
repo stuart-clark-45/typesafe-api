@@ -427,7 +427,8 @@ export default App;
 And that's it you now have a typesafe API. The full source code for this example can be found
  [here](https://github.com/stuart-clark-45/nx-typesafe-api-example) if you want to try it for yourself.
  
-### Feature Ideas
+## Feature Ideas / Improvements
+* Add typing tests like this https://github.com/akheron/typera/blob/main/typing-tests/run-typing-tests.ts
 * Create reference docs for `typesafe-api`
 * Allow for clients in out languages to created (convert to json schema first?)
 * Generate api docs from `Route`s and `EndpointDef`s
