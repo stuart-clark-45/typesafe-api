@@ -1,42 +1,6 @@
-/* eslint-disable prettier/prettier */
 import fs from 'fs';
-import readline from 'readline';
-import { getCompilerErrors, getTestFiles } from './util';
-
-const readLines = (fullFilePath: string) => {
-  const fileStream = fs.createReadStream(fullFilePath);
-  return readline.createInterface({
-    input: fileStream,
-    crlfDelay: Infinity,
-  });
-};
-
-const startToken = '@expected-compiler-errors-start';
-const startPattern = new RegExp(`//\\s*${startToken}\\b`);
-
-class ParsedTS {
-  public code: string[] = [];
-  public expectedErrors: string[] = [];
-}
-
-const parseTS = async (fullFilePath: string): Promise<ParsedTS> => {
-  let isCode = true;
-  const parsedFile = new ParsedTS();
-
-  for await (const line of readLines(fullFilePath)) {
-    if (line.match(startPattern)) {
-      isCode = false;
-    }
-
-    if (isCode) {
-      parsedFile.code.push(line);
-    } else {
-      parsedFile.expectedErrors.push(line);
-    }
-  }
-
-  return parsedFile;
-};
+import { EXPECTED_ERRORS_START, getCompilerErrors, getTestFiles } from './util';
+import { parseTS } from './parse-ts';
 
 const run = async () => {
   for (const file of await getTestFiles()) {
@@ -58,7 +22,7 @@ const run = async () => {
     const newCode = [
       ...code,
       "",
-      `// ${startToken}`,
+      `// ${EXPECTED_ERRORS_START}`,
       ...errors.map((s) => `// ${s}`),
       ""
     ].join("\n");

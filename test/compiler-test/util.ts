@@ -1,6 +1,8 @@
 import { exec } from 'child_process';
 import glob from 'glob-promise';
 
+export const EXPECTED_ERRORS_START = '@expected-compiler-errors-start';
+
 interface Out {
   stdout: string;
   stderr: string;
@@ -33,4 +35,3 @@ export const getCompilerErrors = async (fullFilePath: string): Promise<string[]>
     .filter((s) => s);
   return errors;
 };
-
