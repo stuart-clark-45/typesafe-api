@@ -1,0 +1,36 @@
+import { exec } from 'child_process';
+import glob from 'glob-promise';
+
+interface Out {
+  stdout: string;
+  stderr: string;
+}
+
+const executeCmd = (command: string, callback: (out: Out) => void) => {
+  exec(command, function (error, stdout, stderr) {
+    callback({ stdout, stderr });
+  });
+};
+
+const shell = (cmd: string): Promise<Out> =>
+  new Promise((resolve) => {
+    executeCmd(cmd, resolve);
+  });
+
+export const getTestFiles = (): Promise<string[]> => glob(__dirname + '/tests/**/*.ts');
+
+export const getCompilerErrors = async (fullFilePath: string): Promise<string[]> => {
+  const { stderr } = await shell(`npx ts-node ${fullFilePath}`);
+  const errors = stderr
+    // Process one line at at time
+    .split('\n')
+    // Find the lines with errors on them and select the error message from the match results
+    .map((s) => {
+      const matchResult = s.match(/(\): error )(TS\d+: .+)/);
+      return matchResult && matchResult[2];
+    })
+    // Filter out undefined elements
+    .filter((s) => s);
+  return errors;
+};
+
