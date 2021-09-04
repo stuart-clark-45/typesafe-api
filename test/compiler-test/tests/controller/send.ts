@@ -6,9 +6,7 @@ export const sendTest: Controller<GetDogEndpointDef> = (
   res: TResponse<GetDogEndpointDef>
 ) => {
   res.send({ somethingElse: 1 });
-  req.send({});
 };
 
-// @compiler-errors-start
-//
-//
+// @expected-compiler-errors-start
+// TS2345: Argument of type '{ somethingElse: number; }' is not assignable to parameter of type 'BodyOrError<GetDogEndpointDef>'.
