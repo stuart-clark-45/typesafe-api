@@ -17,6 +17,7 @@
     "prepare": "npm run test && npm run build",
     "preversion": "npm run lint && npm run build",
     "test": "jest -i --coverage",
+    "write-compiler-err": "ts-node test/compiler-test/write-expected-errors.ts",
     "docs": "embedme README.md"
   },
   "keywords": [
