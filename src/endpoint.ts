@@ -14,6 +14,10 @@ export interface ReqOptions {
   axiosConfig?: AxiosRequestConfig;
 }
 
+export interface JsonReqOptions extends ReqOptions {
+  body?: {};
+}
+
 export interface ResOptions {
   body: any;
   headers: {};

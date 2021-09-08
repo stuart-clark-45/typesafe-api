@@ -1,7 +1,8 @@
-import { EndpointDef, ErrorType, ReqOptions, ResOptions, Route } from '../src';
+import { EndpointDef, ErrorType, JsonReqOptions, ReqOptions, ResOptions, Route } from '../src';
 import { Dog, DogWithId } from './dog';
+import { Deepmerge } from '../src/type/deepmerge';
 
-export interface DefaultReqOptions extends ReqOptions {
+export interface DefaultReqOptions extends JsonReqOptions {
   headers: {
     myheader: string;
   };
