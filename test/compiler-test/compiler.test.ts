@@ -5,7 +5,7 @@ type AllFileErrors = {
   [key: string]: string[];
 };
 
-it('test', async () => {
+it('Compiler errors', async () => {
   const expected: AllFileErrors = {};
   const actual: AllFileErrors = {};
 
