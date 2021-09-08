@@ -9,7 +9,8 @@ export interface TRequest<T extends AbstractEndpointDef>
     T['requestOptions']['body'],
     T['requestOptions']['query']
   > {
-  get<K extends keyof T['requestOptions']['headers']>(name: K): T['requestOptions']['headers'][K];
+  get(name: keyof T['requestOptions']['headers']): string | undefined;
+  get(name: keyof T['requestOptions']['headers']): string[] | undefined;
 }
 
 type BodyOrError<T extends AbstractEndpointDef> = ResponseBody<T> | T['errorType'];
