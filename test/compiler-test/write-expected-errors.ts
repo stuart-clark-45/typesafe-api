@@ -4,14 +4,14 @@ import { parseTS } from './parse-ts';
 
 const run = async () => {
   for (const file of await getTestFiles()) {
-    const {code} = await parseTS(file);
+    const { code } = await parseTS(file);
 
     // Remove blank lines form the end of code
     for (let i = code.length - 1; i >= 0; i--) {
       const line = code[i];
       if (!line.length || line.match(/^\s*\n$/)) {
         code.pop();
-      } else  {
+      } else {
         break;
       }
     }
@@ -19,13 +19,7 @@ const run = async () => {
     const errors = await getCompilerErrors(file);
 
     // Build the new code for the file
-    const newCode = [
-      ...code,
-      "",
-      `// ${EXPECTED_ERRORS_START}`,
-      ...errors.map((s) => `// ${s}`),
-      ""
-    ].join("\n");
+    const newCode = [...code, '', `// ${EXPECTED_ERRORS_START}`, ...errors.map((s) => `// ${s}`), ''].join('\n');
 
     fs.writeFileSync(file, newCode);
   }
