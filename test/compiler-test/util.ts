@@ -28,8 +28,8 @@ export const getCompilerErrors = async (fullFilePath: string): Promise<string[]>
     .split('\n')
     // Find the lines with errors on them and select the error message from the match results
     .map((s) => {
-      const matchResult = s.match(/(\): error )(TS\d+: .+)/);
-      return matchResult && matchResult[2];
+      const matchResult = s.match(/\(\d+,\d+\): error TS\d+: .+/);
+      return matchResult && matchResult[0];
     })
     // Filter out undefined elements
     .filter((s) => s);
