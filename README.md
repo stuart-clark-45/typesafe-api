@@ -2,8 +2,6 @@
 
 ### Let your compiler tell you if your API is broken.
 
-Let's face it everybody loves TypeScript and everybody needs APIs. 
-
 We have typesafe frontends and typesafe backends, why not typesafe APIs?
 
 This library will enable you to define your API spec in pure TS, easily create an API client to 
