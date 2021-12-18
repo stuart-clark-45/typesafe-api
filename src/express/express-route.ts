@@ -14,7 +14,7 @@ export const addRoutes = (r: Router, routes: ExpressRoute<any>[]): void => {
   }
 };
 
-export const addRoute = (r: Router, route: ExpressRoute<any>): void => {
+export const addRoute = <T extends AbstractEndpointDef>(r: Router, route: ExpressRoute<T>): void => {
   const { method, path, middleware, controller } = route;
   r[method](path, middleware, controller);
 };
