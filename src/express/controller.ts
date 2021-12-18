@@ -28,7 +28,7 @@ export interface TResponse<T extends AbstractEndpointDef> extends Response<BodyO
 export type Controller<T extends AbstractEndpointDef> = (
   req: TRequest<T>,
   res: TResponse<T>,
-  next?: NextFunction
+  next: NextFunction
 ) => void;
 
 export const sendError = <T extends StandardEndpointDef>(res: TResponse<T>, errorType: T['errorType']): void => {
