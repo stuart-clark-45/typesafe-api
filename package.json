@@ -1,6 +1,6 @@
 {
   "name": "typesafe-api",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "A TypeScript library that can be used to rapidly create typesafe APIs, API Clients and express routes + controllers",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
