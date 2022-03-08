@@ -23,17 +23,18 @@ export const getTestFiles = (): Promise<string[]> => glob(__dirname + '/tests/**
 
 export const getCompilerErrors = async (fullFilePath: string): Promise<string[]> => {
   const { stderr } = await shell(`npx ts-node ${fullFilePath}`);
-  const errors = stderr
-    // Remove print of diagnosticText as it results in duplicated errors
-    .split(/\s+diagnosticText: /)[0]
-    // Process one line at at time
-    .split(/\n+/)
-    // Find the lines with errors on them and select the error message from the match results
-    .map((s) => {
-      const matchResult = s.match(/\(\d+,\d+\): error TS\d+: .+/);
-      return matchResult && matchResult[0];
-    })
-    // Filter out undefined elements
-    .filter((s) => s);
-  return errors;
+  return (
+    stderr
+      // Remove print of diagnosticText as it results in duplicated errors
+      .split(/\s+diagnosticText: /)[0]
+      // Process one line at at time
+      .split(/\n+/)
+      // Find the lines with errors on them and select the error message from the match results
+      .map((s) => {
+        const matchResult = s.match(/\(\d+,\d+\): error TS\d+: .+/);
+        return matchResult && matchResult[0];
+      })
+      // Filter out undefined elements
+      .filter((s) => s)
+  );
 };
