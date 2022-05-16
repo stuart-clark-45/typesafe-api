@@ -1,10 +1,8 @@
 import { ReqOptions } from '../endpoint';
-import { AxiosRequestConfig } from 'axios';
 
 export type ApiClientParams<DefaultReqOpt extends ReqOptions> = {
   baseUrl?: string;
   parent?: AbstractApiClient<DefaultReqOpt>;
-  defaultReqOptions: DefaultReqOpt;
 };
 
 export abstract class AbstractApiClient<T extends ReqOptions> {
@@ -15,18 +13,17 @@ export abstract class AbstractApiClient<T extends ReqOptions> {
     return parent?.getBaseUrl() || baseUrl;
   }
 
-  public getDefaultReqOptions(): T {
-    return this.params.defaultReqOptions;
-  }
-
-  public getDefaultAxiosConfig(): AxiosRequestConfig {
-    return this.params.defaultReqOptions.axiosConfig ?? {};
+  public async getDefaultReqOptions(): Promise<T> {
+    const parent = this.params.parent;
+    if (!parent) {
+      throw Error('getDefaultReqOptions(..) must be overridden if client has no parent');
+    }
+    return parent.getDefaultReqOptions();
   }
 
   public getChildParams(): ApiClientParams<T> {
     return {
       parent: this,
-      defaultReqOptions: this.params.defaultReqOptions,
     };
   }
 }

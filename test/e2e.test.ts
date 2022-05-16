@@ -1,23 +1,11 @@
 import { clearDogDB, scoobyDoo } from './dog';
 import { startApp } from './example-express';
-import {
-  DefaultReqOptions,
-  GetDogEndpointDef,
-  GetDogErrorType,
-  HeaderTestEndpointDef,
-  HeaderTestReq,
-} from './example-routes';
+import { GetDogEndpointDef, GetDogErrorType, HeaderTestEndpointDef, HeaderTestReq } from './example-routes';
 import { AxiosError, AxiosRequestConfig } from 'axios';
 import { ErrorHandlers, handleError, ResponseBody } from '../src';
-import { RootApiClient } from './example-api-client';
+import { defaultReqOptions, RootApiClient } from './example-api-client';
 
 export const OBJECT_ID_STRING = /^[a-f\d]{24}$/i;
-
-const defaultReqOptions: DefaultReqOptions = {
-  headers: {
-    myheader: 'default-header-value',
-  },
-};
 
 const defaultHeaderTestResp: ResponseBody<HeaderTestEndpointDef> = {
   headerValue: defaultReqOptions.headers.myheader,
@@ -79,20 +67,18 @@ it('Test response headers', async () => {
 });
 
 it('Test default axios config', async () => {
-  const axiosTestClient = new RootApiClient({
-    baseUrl,
-    defaultReqOptions: {
-      ...defaultReqOptions,
-      axiosConfig: zeroContent,
+  const axiosTestClient = new RootApiClient(
+    {
+      baseUrl,
     },
-  });
+    zeroContent
+  );
   await expectMaxContentSizeError(axiosTestClient.headerTest({}));
 });
 
 it('Test request axios config', async () => {
   const axiosTestClient = new RootApiClient({
     baseUrl,
-    defaultReqOptions,
   });
   const resp = axiosTestClient.headerTest({ axiosConfig: zeroContent });
   await expectMaxContentSizeError(resp);

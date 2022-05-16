@@ -30,14 +30,14 @@ export const replaceUrlParams = (path: string, params: Record<string, unknown>):
   return path;
 };
 
-const getRequestOpts = <E extends AbstractEndpointDef, DefaultReqOpt extends ReqOptions>(
-  apiClient: AbstractApiClient<DefaultReqOpt>,
+const getRequestOpts = async <E extends AbstractEndpointDef, DefaultReqOpt extends ReqOptions>(
+  defaultReqOpt: DefaultReqOpt,
   reqOptions: E['clientReqOptions']
 ) => {
   const mergeOptions: deepMerge.Options = {
     arrayMerge: (destinationArray: any[], sourceArray: any[]) => sourceArray,
   };
-  return deepMerge(apiClient.getDefaultReqOptions(), reqOptions, mergeOptions);
+  return deepMerge(defaultReqOpt, reqOptions, mergeOptions);
 };
 
 const callRoute = async <E extends AbstractEndpointDef>(
@@ -45,7 +45,8 @@ const callRoute = async <E extends AbstractEndpointDef>(
   route: Route,
   reqOptions: ReqOptions
 ): Promise<TAxiosResponse<E>> => {
-  const { params, query, body, headers } = getRequestOpts(apiClient, reqOptions);
+  const defaultReqOpt = await apiClient.getDefaultReqOptions();
+  const { params, query, body, headers } = await getRequestOpts(defaultReqOpt, reqOptions);
   const { method } = route;
 
   // Build the url
@@ -53,9 +54,10 @@ const callRoute = async <E extends AbstractEndpointDef>(
   const url = urlJoin(apiClient.getBaseUrl(), routePath);
 
   // Make the request
+  const defaultAxiosConfig = defaultReqOpt.axiosConfig ?? {};
   const config: AxiosRequestConfig = {
     validateStatus: (status) => status >= 200 && status < 300,
-    ...apiClient.getDefaultAxiosConfig(),
+    ...defaultAxiosConfig,
     method,
     url,
     // Just in case this has slipped in as part of the default axios config
