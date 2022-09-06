@@ -1,15 +1,15 @@
-import { AbstractEndpointDef } from '../endpoint';
+import { StandardEndpointDef } from '../endpoint';
 import { AxiosError } from 'axios';
 
-type ErrorStatuses<T extends AbstractEndpointDef> = T['errorType']['status'];
+type ErrorStatuses<T extends StandardEndpointDef> = T['errorType']['status'];
 
-type ErrorHandlerFnc<T extends AbstractEndpointDef> = (err: AxiosError<T['errorType']>) => void | Promise<void>;
+type ErrorHandlerFnc<T extends StandardEndpointDef> = (err: AxiosError<T['errorType']>) => void | Promise<void>;
 
-export type ErrorHandlers<T extends AbstractEndpointDef> = {
+export type ErrorHandlers<T extends StandardEndpointDef> = {
   [key in ErrorStatuses<T>]: ErrorHandlerFnc<T>;
 };
 
-export const handleError = <T extends AbstractEndpointDef>(
+export const handleError = <T extends StandardEndpointDef>(
   err: AxiosError<T['errorType']>,
   handlers: ErrorHandlers<T>
 ): void | Promise<void> => {
