@@ -30,9 +30,12 @@
   ],
   "author": "stuart-clark-45",
   "license": "MIT",
-  "devDependencies": {
-    "@types/express": "^4.17.13",
+  "peerDependencies": {
     "@types/express-serve-static-core": "^4.17.30",
+    "express": "^4.17.1",
+    "@types/express": "^4.17.13"
+  },
+  "devDependencies": {
     "@types/jest": "^27.0.1",
     "@types/node": "14.17.1",
     "@typescript-eslint/eslint-plugin": "4.26.0",
@@ -54,7 +57,6 @@
   "dependencies": {
     "axios": "^0.21.1",
     "deepmerge": "^4.2.2",
-    "express": "^4.17.1",
     "tslib": "^2.0.1",
     "url-join-ts": "^1.0.5"
   }
