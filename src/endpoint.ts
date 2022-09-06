@@ -43,6 +43,4 @@ export type ResponseBody<T extends AbstractEndpointDef> = T['responseOptions']['
 
 export type ResponseHeaders<T extends AbstractEndpointDef> = T['responseOptions']['headers'];
 
-export type StandardEndpointDef = EndpointDef<any, any, any, ErrorType<any>>;
-
-export type AbstractEndpointDef = EndpointDef<any, any, any, any>;
+export type AbstractEndpointDef = EndpointDef<any, any, any, ErrorType<any>>;
