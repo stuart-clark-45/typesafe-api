@@ -29,7 +29,7 @@ export interface EndpointDef<
   DefaultReqOpt extends ReqOptions,
   ReqOpt extends ReqOptions,
   ResOpt extends ResOptions,
-  E = ErrorType
+  E extends ErrorType<number> = ErrorType
 > {
   requestOptions: Deepmerge<DefaultReqOpt, ReqOpt>;
   defaultReqOptions: DefaultReqOpt;
