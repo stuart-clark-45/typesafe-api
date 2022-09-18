@@ -1,4 +1,9 @@
-# typesafe-api 
+# DEPRECIATED
+Please use [@typesafe-api/core](https://github.com/typesafe-api/typesafe-api) instead
+and  [@typesafe-api/express](https://github.com/typesafe-api/typesafe-api) instead!
+
+---
+# typesafe-api
 
 ### Let your compiler tell you if your API is broken.
 
