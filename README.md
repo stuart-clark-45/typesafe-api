@@ -2,6 +2,8 @@
 Please use [@typesafe-api/core](https://github.com/typesafe-api/typesafe-api) instead
 and  [@typesafe-api/express](https://github.com/typesafe-api/typesafe-api) instead!
 
+To migrate you just need to update your imports :)
+
 ---
 # typesafe-api
 
